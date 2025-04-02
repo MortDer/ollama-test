@@ -5,10 +5,12 @@
     </button>
     <nav class="side-menu__nav">
       <ul class="side-menu__list">
-        <li v-for="item in menuItems" :key="item.id" class="side-menu__item">
-          <a href="#" class="side-menu__link">
-            <span v-show="!isCollapsed" class="side-menu__text">{{ item.text }}</span>
-          </a>
+        <li
+            v-for="[key, item] in chartsMap"
+            :key="key"
+            class="side-menu__item cursor-pointer"
+        >
+          <span v-show="!isCollapsed" class="side-menu__text">{{ item.title }}</span>
         </li>
       </ul>
     </nav>
@@ -17,16 +19,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import {chartsMap} from "@/store";
 
 const isCollapsed = ref(false)
-
-const menuItems = [
-  { id: 1, text: 'Чат1' },
-  { id: 2, text: 'Чат3' },
-  { id: 3, text: 'Чат4' },
-  { id: 4, text: 'Чат5' },
-  { id: 5, text: 'Чат6' },
-]
 
 const toggleMenu = () => {
   isCollapsed.value = !isCollapsed.value

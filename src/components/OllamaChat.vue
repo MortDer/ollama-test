@@ -51,6 +51,12 @@
       {{ isLoading ? 'Обработка запроса...' : 'Отправить' }}
     </button>
 
+    <button
+        @click="startNewChat"
+    >
+      Новый чат
+    </button>
+
     <div class="response" v-if="response">
       <h3>Response:</h3>
       <pre>{{ response }}</pre>
@@ -62,7 +68,8 @@
 import {onMounted, ref} from 'vue'
 import {generateChat, listModels} from '../api/ollama'
 import {v4 as uuidv4} from 'uuid';
-import {zSelectProps} from "@/components/common/defaultProps.ts";
+import {zSelectProps} from '@/components/common/defaultProps.ts';
+import {chartsMap, setChartsMap, getCurrentKey, setCurrentKey} from "@/store";
 
 interface Model {
   name: string
@@ -77,18 +84,7 @@ const isLoading = ref<boolean>(false)
 const selectedFile = ref<File | null>(null)
 const fileContent = ref<string>('')
 
-interface IResponseFeedMsg {
-  role: 'user' | 'assistant',
-  content: string,
-}
 
-interface IResponseFeed {
-  model: string,
-  messages: IResponseFeedMsg[],
-}
-
-
-const chartsMap: Map<string, IResponseFeed> = new Map();
 
 const handleFileUpload = (event: Event) => {
   const input = event.target as HTMLInputElement
@@ -110,16 +106,26 @@ const readFileContent = () => {
 }
 
 const generate = async () => {
-  const id = uuidv4();
-  chartsMap.set(id, {
-    model: selectedModel.value,
-    messages: [
-      {
-        role: 'user',
-        content: prompt.value
-      }
-    ]
-  })
+  const ck = getCurrentKey();
+  console.log('ck', ck);
+
+  if (chartsMap.value.get(ck)?.messages.length === 0) {
+    chartsMap.value.set(ck, {
+      model: selectedModel,
+      title: prompt.value,
+      messages: [
+        {
+          role: 'user',
+          content: prompt.value,
+        }
+      ],
+    })
+  } else {
+    chartsMap.value.get(ck)?.messages.push({
+      role: 'user',
+      content: prompt.value
+    })
+  }
 
   if (!selectedModel.value || (!prompt.value && !fileContent.value)) return
 
@@ -136,7 +142,7 @@ const generate = async () => {
     })
 
     response.value = result.response
-    chartsMap.get(id)?.messages.push({
+    chartsMap.value.get(ck)?.messages.push({
       role: 'assistant',
       content: response.value
     })
@@ -149,6 +155,12 @@ const generate = async () => {
   }
 }
 
+function startNewChat() {
+  const id = uuidv4();
+  setCurrentKey(id);
+  setChartsMap(id, selectedModel.value, [])
+}
+
 onMounted(async () => {
   try {
     const data = await listModels()
@@ -157,8 +169,10 @@ onMounted(async () => {
       selectedModel.value = models.value[0].name
     }
   } catch (error) {
-    console.error('Error loading models:', error)
+    console.error('Ошибка загрузки списка моделей', error)
   }
+
+  startNewChat();
 })
 </script>
 
