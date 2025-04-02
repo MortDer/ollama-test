@@ -1,9 +1,9 @@
 <template>
   <div>
-    <OllamaChat />
+    <MainLayout />
   </div>
 </template>
 
 <script setup lang="ts">
-import OllamaChat from './components/OllamaChat.vue'
+import MainLayout from './layouts/MainLayout.vue';
 </script>
