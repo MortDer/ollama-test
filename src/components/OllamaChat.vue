@@ -2,6 +2,16 @@
   <div class="ollama-chat">
     <h1>Ollama Chat</h1>
 
+    <q-select
+        v-model="selectedModel"
+        v-bind="zSelectProps"
+        emit-value
+        map-options
+        :options="models"
+        option-label="name"
+        option-value="name"
+    ></q-select>
+
     <div class="model-selector">
       <label for="model">Model:</label>
       <select id="model" v-model="selectedModel">
@@ -49,9 +59,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import {generateChat, generateText, listModels} from '../api/ollama'
-import { v4 as uuidv4 } from 'uuid';
+import {onMounted, ref} from 'vue'
+import {generateChat, listModels} from '../api/ollama'
+import {v4 as uuidv4} from 'uuid';
+import {zSelectProps} from "@/components/common/defaultProps.ts";
 
 interface Model {
   name: string
@@ -75,7 +86,6 @@ interface IResponseFeed {
   model: string,
   messages: IResponseFeedMsg[],
 }
-
 
 
 const chartsMap: Map<string, IResponseFeed> = new Map();
