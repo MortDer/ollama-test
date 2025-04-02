@@ -148,7 +148,7 @@
 :root,
 :root *::before,
 :root *::after {
-  --z-font-family: 'RobotoMono', monospace;
+  --z-font-family: 'Iosevka Custom Web', 'RobotoMono', monospace;
   --z-font-family-text: 'Iosevka Custom Web', 'RobotoMono', monospace;
   --z-font-family-header: 'Tektur', monospace;
   --z-transition-duration: 0.3s ease;
@@ -187,45 +187,43 @@
   }
 }
 
-body.body {
 
-  .base-table-layout,
-  .reset-library-styles {
+.reset-library-styles {
 
-    &,
-    & * {
-      vertical-align: middle;
+  &,
+  & * {
+    vertical-align: middle;
 
-      &:not(.q-icon) {
-        font-family: var(--z-font-family);
-        line-height: 18px;
-      }
-
-      &::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-
-      &::-webkit-scrollbar-track {
-        box-shadow: none;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background-color: var(--z-accent-color);
-        border-radius: 1px;
-        border: 2px solid var(--z-accent-border);
-      }
-
-      &::-webkit-scrollbar-corner {
-        background-color: transparent;
-      }
+    &:not(.q-icon) {
+      font-family: var(--z-font-family);
+      line-height: 18px;
     }
 
-    & .accent-color {
-      color: var(--z-accent-color);
+    &::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      box-shadow: none;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--z-accent-color);
+      border-radius: 1px;
+      border: 2px solid var(--z-accent-border);
+    }
+
+    &::-webkit-scrollbar-corner {
+      background-color: transparent;
     }
   }
+
+  & .accent-color {
+    color: var(--z-accent-color);
+  }
 }
+
 
 .z-main-color-theme {
   --main-layout-bg: var(--z-main-color);

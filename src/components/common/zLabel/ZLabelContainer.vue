@@ -1,65 +1,65 @@
 <template>
   <section
-    class="z-label-container"
-    :class="getClasses"
+      class="z-label-container"
+      :class="getClasses"
   >
     <div
-      v-if="text || $slots.labelText"
-      class="z-label-container__title"
+        v-if="text || $slots.labelText"
+        class="z-label-container__title"
     >
       <z-label
-        :text="text"
-        :color="labelColor"
-        :label-align="labelAlign"
+          :text="text"
+          :color="labelColor"
+          :label-align="labelAlign"
       >
         <template
-          v-if="$slots.labelIcon"
-          #labelIcon
+            v-if="$slots.labelIcon"
+            #labelIcon
         >
-          <slot name="labelIcon" />
+          <slot name="labelIcon"/>
         </template>
         <slot
-          v-if="$slots.labelText"
-          name="labelText"
+            v-if="$slots.labelText"
+            name="labelText"
         />
       </z-label>
     </div>
     <div
-      v-if="$slots.default"
-      class="z-label-container__body"
+        v-if="$slots.default"
+        class="z-label-container__body"
     >
-      <slot />
+      <slot/>
     </div>
   </section>
 </template>
 
 <script lang="ts" setup>
-import ZLabel from '@/components/redisign/common/zLabel/ZLabel.vue';
-import { computed } from 'vue';
+import ZLabel from '@/components/common/zLabel/ZLabel.vue';
+import {computed} from 'vue';
 
 interface IZLabelContainer {
-    text?: string;
-    labelColor?: string;
-    backgroundClass?: string;
-    noBorder?: boolean;
-    labelAlign?: 'center' | 'none';
-    paddingSize?: 'md' | 'sm';
-    paddingHorizontal?: boolean;
+  text?: string;
+  labelColor?: string;
+  backgroundClass?: string;
+  noBorder?: boolean;
+  labelAlign?: 'center' | 'none';
+  paddingSize?: 'md' | 'sm';
+  paddingHorizontal?: boolean;
 }
 
 const props = withDefaults(defineProps<IZLabelContainer>(), {
-    paddingHorizontal: true,
+  paddingHorizontal: true,
 });
 
 const getClasses = computed(() => {
-    return [
-        props.backgroundClass || 'z-3d-main-color-theme',
-        `padding-size--${props.paddingSize || 'md'}`,
-        {
-            'no-border': props.noBorder,
-            'padding-horizontal-none': !props.paddingHorizontal,
-        },
-    ];
+  return [
+    props.backgroundClass || 'z-3d-main-color-theme',
+    `padding-size--${props.paddingSize || 'md'}`,
+    {
+      'no-border': props.noBorder,
+      'padding-horizontal-none': !props.paddingHorizontal,
+    },
+  ];
 });
 
 </script>

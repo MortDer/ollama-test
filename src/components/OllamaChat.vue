@@ -1,75 +1,87 @@
 <template>
   <div class="ollama-chat">
-    <h1>Ollama Chat</h1>
-
-    <q-select
-        v-model="selectedModel"
-        v-bind="zSelectProps"
-        emit-value
-        map-options
-        :options="models"
-        option-label="name"
-        option-value="name"
-    ></q-select>
-
-    <div class="model-selector">
-      <label for="model">Model:</label>
-      <select id="model" v-model="selectedModel">
-        <option
-            v-for="model in models"
-            :key="model.name"
-            :value="model.name"
-        >
-          {{ model.name }} ({{ (model.size / 1024 / 1024).toFixed(1) }}MB)
-        </option>
-      </select>
+    <div class="ollama-chat__header">
+      <h1>Ollama Chat</h1>
+      <div class="ollama-chat__model">
+        <z-label-container text="Выберите модель">
+          <q-select
+              v-model="selectedModel"
+              v-bind="zSelectProps"
+              :options="models"
+              map-options
+              emit-value
+              option-value="name"
+              :option-label="(opt) => `${opt.name} (${(opt.size / 1024 / 1024).toFixed(1)}MB)`"
+              class="q-mb-md"
+          />
+        </z-label-container>
+      </div>
     </div>
-
-    <div class="prompt-area">
-      <textarea
-          v-model="prompt"
-          placeholder="Введите свой запрос"
-          rows="2"
-      ></textarea>
-    </div>
-
-    <div class="file-upload">
-      <input
-          type="file"
-          @change="handleFileUpload"
-          accept=".txt,.md,.pdf,.docx"
-      />
-      <p v-if="selectedFile">
-        Selected file: {{ selectedFile.name }} ({{ (selectedFile.size / 1024).toFixed(1) }}KB)
-      </p>
-    </div>
-
-    <button
-        @click="generate"
-        :disabled="isLoading || !selectedModel"
-    >
-      {{ isLoading ? 'Обработка запроса...' : 'Отправить' }}
-    </button>
-
-    <button
-        @click="startNewChat"
-    >
-      Новый чат
-    </button>
-
-    <div class="response" v-if="response">
+    <div class="ollama-chat__response" v-if="response">
       <h3>Response:</h3>
-      <pre>{{ response }}</pre>
+      <pre v-html="formattedResponse"></pre>
+    </div>
+    <div class="ollama-chat__body">
+
+      <div class="ollama-chat__prompt">
+        <z-label-container text="Введите свой запрос">
+          <q-input
+              v-model="prompt"
+              v-bind="zInputProps"
+              type="textarea"
+              autogrow
+              @input="adjustTextareaHeight"
+              ref="textareaRef"
+              label=""
+              class="ollama-chat__textarea"
+          >
+          </q-input>
+        </z-label-container>
+      </div>
+      <div class="ollama-chat__file">
+        <z-label-container text="Загрузить файлы">
+          <q-file
+              v-model="selectedFiles"
+              v-bind="zInputProps"
+              stack-label
+              clearable
+              multiple
+              accept=".txt,.md,.pdf,.docx"
+              @change="handleFileUpload"
+          />
+          <p v-if="selectedFiles?.length">
+            Загружено файлов: {{ selectedFiles.length }} (Общий размер: {{ totalFilesSize }}KB)
+          </p>
+        </z-label-container>
+      </div>
+      <div class="ollama-chat__actions">
+        <z-button-list-container>
+          <z-button-direction
+              :text="isLoading ? 'Обработка запроса...' : 'Отправить'"
+              :disabled="isLoading || !selectedModel"
+              @click="generate"
+          />
+          <z-button-direction
+              text="Новый чат"
+              is-shy
+              color="purple"
+              @click="startNewChat"
+          />
+        </z-button-list-container>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {generateChat, listModels} from '../api/ollama'
 import {v4 as uuidv4} from 'uuid';
-import {zSelectProps} from '@/components/common/defaultProps.ts';
-import {chartsMap, setChartsMap, getCurrentKey, setCurrentKey} from "@/store";
+import {zInputProps, zSelectProps} from '@/components/common/defaultProps.ts';
+import {chartsMap, getCurrentKey, setChartsMap, setCurrentKey} from "@/store";
+import ZLabelContainer from "@/components/common/zLabel/ZLabelContainer.vue";
+import ZButtonListContainer from "@/components/common/zButton/ZButtonListContainer.vue";
+import ZButtonDirection from "@/components/common/zButton/ZButtonDirection.vue";
 
 interface Model {
   name: string
@@ -81,28 +93,46 @@ const selectedModel = ref<string>('')
 const prompt = ref<string>('')
 const response = ref<string>('')
 const isLoading = ref<boolean>(false)
-const selectedFile = ref<File | null>(null)
+const selectedFiles = ref<File[]>([])
 const fileContent = ref<string>('')
+const textareaRef = ref<HTMLElement | null>(null)
 
+const totalFilesSize = computed(() => {
+  return (selectedFiles.value.reduce((total, file) => total + file.size, 0) / 1024).toFixed(1)
+})
 
-
-const handleFileUpload = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  if (input.files?.length) {
-    selectedFile.value = input.files[0]
-    readFileContent()
+const adjustTextareaHeight = () => {
+  if (textareaRef.value) {
+    const textarea = textareaRef.value.querySelector('textarea')
+    if (textarea) {
+      textarea.style.height = 'auto'
+      textarea.style.height = `${textarea.scrollHeight}px`
+    }
   }
 }
 
-// Чтение содержимого файла
-const readFileContent = () => {
-  if (!selectedFile.value) return
+const handleFileUpload = (files: File[]) => {
+  selectedFiles.value = files
+  readFilesContent()
+}
 
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    fileContent.value = e.target?.result as string
-  }
-  reader.readAsText(selectedFile.value)
+// Чтение содержимого файлов
+const readFilesContent = async () => {
+  if (!selectedFiles.value.length) return
+
+  const contents = await Promise.all(
+      selectedFiles.value.map(file =>
+          new Promise<string>((resolve) => {
+            const reader = new FileReader()
+            reader.onload = (e) => {
+              resolve(e.target?.result as string)
+            }
+            reader.readAsText(file)
+          })
+      )
+  )
+
+  fileContent.value = contents.join('\n\n')
 }
 
 const generate = async () => {
@@ -151,7 +181,7 @@ const generate = async () => {
     response.value = 'Произошла ошибка при генерации ответа'
   } finally {
     isLoading.value = false
-    selectedFile.value = null;
+    selectedFiles.value = []
   }
 }
 
@@ -160,6 +190,17 @@ function startNewChat() {
   setCurrentKey(id);
   setChartsMap(id, selectedModel.value, [])
 }
+
+const formattedResponse = computed(() => {
+  if (!response.value) return ''
+
+  return response.value
+      .replace(/<think>\n/g, '<think>')
+      .replace(
+          /<think>([\s\S]*?)<\/think>/g,
+          '<span class="ollama-chat__think">$1</span>'
+      )
+})
 
 onMounted(async () => {
   try {
@@ -176,49 +217,81 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .ollama-chat {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.model-selector, .prompt-area, .file-upload {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-textarea {
   width: 100%;
-  padding: 0.5rem;
-  font-family: inherit;
-}
+  background-color: var(--main-layout-bg);
+  color: var(--main-layout-color);
 
-button {
-  padding: 0.5rem 1rem;
-  background: #42b983;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+  &__header {
+    margin-bottom: calc(2 * var(--z-layout-gutter-md));
+  }
 
-button:disabled {
-  background: #cccccc;
-  cursor: not-allowed;
-}
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--z-layout-gutter-md);
+    position: sticky;
+    bottom: 0;
+    background-color: var(--main-layout-bg);
+  }
 
-.response {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: #f5f5f5;
-  border-radius: 4px;
-  color: black;
-}
+  &__prompt {
+    &:deep(.q-field__inner) {
+      background-color: var(--inverse-textarea-bg);
 
-pre {
-  white-space: pre-wrap;
-  word-wrap: break-word;
+      .q-field__control {
+        height: 100%;
+        border: none;
+
+        textarea {
+          max-height: calc(50vh - 4px);
+        }
+      }
+    }
+  }
+
+  &__textarea {
+    &:deep(.q-field__control) {
+      max-height: 50vh;
+
+      textarea {
+        min-height: 150px !important;
+      }
+    }
+  }
+
+  &__file {
+    &:deep(.q-field--outlined) {
+      .q-field__control::after {
+        height: 100%;
+      }
+    }
+  }
+
+  &__actions {
+    margin-top: var(--z-layout-gutter-xs);
+  }
+
+  &__response {
+    margin-bottom: calc(2 * var(--z-layout-gutter-md));
+
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  }
+
+  &:deep(.ollama-chat__think) {
+    display: block;
+    background-color: var(--inverse-textarea-bg);
+    padding: var(--z-layout-gutter-md);
+    border-radius: var(--z-border-radius);
+    margin: var(--z-layout-gutter-md) 0;
+    font-style: italic;
+    color: var(--z-fifth-text-color);
+    font-size: var(--z-font-size-label);
+    border-left: 1px solid var(--z-fifth-text-color);
+  }
 }
 </style>
