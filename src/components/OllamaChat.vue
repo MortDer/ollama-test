@@ -51,6 +51,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { generateText, listModels } from '../api/ollama'
+import { v4 as uuidv4 } from 'uuid';
 
 interface Model {
   name: string
@@ -65,7 +66,19 @@ const isLoading = ref<boolean>(false)
 const selectedFile = ref<File | null>(null)
 const fileContent = ref<string>('')
 
-const chartsMap = new Map();
+interface IResponseFeedMsg {
+  role: 'user' | 'assistant',
+  content: string,
+}
+
+interface IResponseFeed {
+  model: string,
+  messages: IResponseFeedMsg[],
+}
+
+
+
+const chartsMap: Map<string, IResponseFeed> = new Map();
 
 const handleFileUpload = (event: Event) => {
   const input = event.target as HTMLInputElement
@@ -87,6 +100,17 @@ const readFileContent = () => {
 }
 
 const generate = async () => {
+  const id = uuidv4();
+  chartsMap.set(id, {
+    model: selectedModel.value,
+    messages: [
+      {
+        role: 'user',
+        content: prompt.value
+      }
+    ]
+  })
+
   if (!selectedModel.value || (!prompt.value && !fileContent.value)) return
 
   isLoading.value = true
@@ -102,11 +126,16 @@ const generate = async () => {
     })
 
     response.value = result.response
+    chartsMap.get(id)?.messages.push({
+      role: 'assistant',
+      content: response.value
+    })
   } catch (error) {
-    console.error('Generation error:', error)
-    response.value = 'Error occurred during generation'
+    console.error('Ошибка генерации:', error)
+    response.value = 'Произошла ошибка при генерации ответа'
   } finally {
     isLoading.value = false
+    selectedFile.value = null;
   }
 }
 
