@@ -21,6 +21,11 @@ export const generateText = async (params: GenerateRequest) => {
     return response.data
 }
 
+export const generateChat = async (params: GenerateRequest) => {
+    const response = await api.post('/generate', params)
+    return response.data
+}
+
 export const listModels = async (): Promise<{ models: ModelInfo[] }> => {
     const response = await api.get('/tags')
     return response.data

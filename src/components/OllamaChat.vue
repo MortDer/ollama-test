@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { generateText, listModels } from '../api/ollama'
+import {generateChat, generateText, listModels} from '../api/ollama'
 import { v4 as uuidv4 } from 'uuid';
 
 interface Model {
@@ -119,7 +119,7 @@ const generate = async () => {
         ? `${prompt.value}\n\nFile content:\n${fileContent.value}`
         : prompt.value
 
-    const result = await generateText({
+    const result = await generateChat({
       model: selectedModel.value,
       prompt: fullPrompt,
       stream: false,
