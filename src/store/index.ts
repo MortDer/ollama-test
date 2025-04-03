@@ -5,7 +5,7 @@ interface IResponseFeedMsg {
     content: string,
 }
 
-interface IResponseFeed {
+export interface IResponseFeed {
     model: string,
     title: string,
     messages: IResponseFeedMsg[],

@@ -13,7 +13,7 @@
       <nav class="left-menu__nav">
         <ul class="left-menu__list">
           <li
-              v-for="[key, item] in chartsMap"
+              v-for="[key, item] in reversedChartsMap"
               :key="key"
               class="left-menu__item"
               :class="{ 'is-active': isActive === key }"
@@ -29,14 +29,18 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue'
-import {chartsMap} from "@/store";
+import {computed, ref} from 'vue'
+import {chartsMap, type IResponseFeed} from "@/store";
 import ZWindowMaximizeIcon from "@/components/zIconList/ZWindowMaximizeIcon.vue";
 import ZWindowMinimizeIcon from "@/components/zIconList/ZWindowMinimizeIcon.vue";
 import ZButtonSelfIcon from "@/components/common/zButton/ZButtonSelfIcon.vue";
 
 const isCollapsed = ref(false)
 const isActive = ref()
+
+const reversedChartsMap = computed(() => {
+  return new Map<string, IResponseFeed>([...chartsMap.value].reverse());
+})
 
 const toggleMenu = () => {
   isCollapsed.value = !isCollapsed.value
