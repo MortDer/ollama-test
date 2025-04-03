@@ -11,14 +11,13 @@
               map-options
               emit-value
               option-value="name"
-              :option-label="(opt) => `${opt.name} (${(opt.size / 1024 / 1024).toFixed(1)}MB)`"
+              :option-label="(opt: Model) => `${opt.name} (${(opt.size / 1024 / 1024).toFixed(1)}MB)`"
               class="q-mb-md"
           />
         </z-label-container>
       </div>
     </div>
     <div class="ollama-chat__response" v-if="response">
-      <h3>Response:</h3>
       <pre v-html="formattedResponse"></pre>
     </div>
     <div class="ollama-chat__body">
@@ -136,42 +135,48 @@ const readFilesContent = async () => {
 }
 
 const generate = async () => {
-  const ck = getCurrentKey();
-  console.log('ck', ck);
-
-  if (chartsMap.value.get(ck)?.messages.length === 0) {
-    chartsMap.value.set(ck, {
-      model: selectedModel,
-      title: prompt.value,
-      messages: [
-        {
-          role: 'user',
-          content: prompt.value,
-        }
-      ],
-    })
-  } else {
-    chartsMap.value.get(ck)?.messages.push({
-      role: 'user',
-      content: prompt.value
-    })
-  }
-
   if (!selectedModel.value || (!prompt.value && !fileContent.value)) return
 
   isLoading.value = true
   try {
+    const ck = getCurrentKey();
+    console.log('ck', ck);
+
     const fullPrompt = fileContent.value
         ? `${prompt.value}\n\nFile content:\n${fileContent.value}`
         : prompt.value
 
+    if (chartsMap.value.get(ck)?.messages.length === 0) {
+      chartsMap.value.set(ck, {
+        model: selectedModel,
+        title: prompt.value,
+        messages: [
+          {
+            role: 'system',
+            content: fullPrompt,
+          }
+        ],
+      })
+
+      chartsMap.value.get(ck)?.messages.push({
+        role: 'user',
+        content: fullPrompt
+      })
+    } else {
+      chartsMap.value.get(ck)?.messages.push({
+        role: 'user',
+        content: fullPrompt
+      })
+    }
+
     const result = await generateChat({
       model: selectedModel.value,
-      prompt: fullPrompt,
+      messages: chartsMap.value.get(ck)?.messages,
       stream: false,
     })
 
-    response.value = result.response
+    response.value = result.message.content
+    console.log(result);
     chartsMap.value.get(ck)?.messages.push({
       role: 'assistant',
       content: response.value
@@ -181,6 +186,7 @@ const generate = async () => {
     response.value = 'Произошла ошибка при генерации ответа'
   } finally {
     isLoading.value = false
+    prompt.value = '';
     selectedFiles.value = []
   }
 }
