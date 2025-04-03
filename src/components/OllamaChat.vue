@@ -195,6 +195,7 @@ function startNewChat() {
   const id = uuidv4();
   setCurrentKey(id);
   setChartsMap(id, selectedModel.value, [])
+  response.value = '';
 }
 
 const formattedResponse = computed(() => {
