@@ -1,20 +1,16 @@
-import {ref} from "vue";
-
-interface IResponseFeedMsg {
-    role: 'user' | 'assistant',
-    content: string,
-}
+import { ref } from "vue";
+import type { IChatMsg } from "../api/ollama";
 
 export interface IResponseFeed {
     model: string,
     title: string,
-    messages: IResponseFeedMsg[],
+    messages: IChatMsg[],
 }
 
 export const chartsMap = ref(new Map<string, IResponseFeed>());
 export const currentKey = ref('');
 
-export function setChartsMap(key: string, model: string, messages: IResponseFeedMsg[], title?: string) {
+export function setChartsMap(key: string, model: string, messages: IChatMsg[], title?: string) {
     chartsMap.value.set(key, {
         model,
         title: title || 'Новый чат',

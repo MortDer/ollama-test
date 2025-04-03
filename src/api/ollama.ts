@@ -10,7 +10,7 @@ interface IGenerateRequest {
     stream?: boolean
 }
 
-interface IChatMsg {
+export interface IChatMsg {
     role: 'system' | 'user' | 'assistant'
     content: string
 }
@@ -27,12 +27,19 @@ interface IModelInfo {
     size: number
 }
 
+export interface IChatResponse {
+    message: IChatMsg
+    model: string
+    created_at: string
+    done: boolean
+}
+
 export const generateText = async (params: IGenerateRequest) => {
     const response = await api.post('/generate', params)
     return response.data
 }
 
-export const generateChat = async (params: IGenerateChatRequest) => {
+export const generateChat = async (params: IGenerateChatRequest): Promise<IChatResponse> => {
     const response = await api.post('/chat', params)
     return response.data
 }

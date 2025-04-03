@@ -17,11 +17,30 @@
         </z-label-container>
       </div>
     </div>
-    <div class="ollama-chat__response" v-if="response">
-      <pre v-html="formattedResponse"></pre>
-    </div>
+    <z-label-container
+        text="Ответы"
+        class="ollama-chat__history"
+        v-if="chartsMapToShow?.messages.length"
+        background-class="z-3d-main-color-theme"
+    >
+      <template
+          v-for="(message, index) in chartsMapToShow.messages"
+          :key="index"
+      >
+        <div
+            v-if="message.role !== 'system'"
+            class="ollama-chat__history-item"
+        >
+          <div
+              class="ollama-chat__history-message z-main-color-theme"
+              :class="[`ollama-chat__history-message--${message.role}`]"
+          >
+            <pre v-html="formatResponse(message.content)"></pre>
+          </div>
+        </div>
+      </template>
+    </z-label-container>
     <div class="ollama-chat__body">
-
       <div class="ollama-chat__prompt">
         <z-label-container text="Введите свой запрос">
           <q-input
@@ -31,7 +50,6 @@
               autogrow
               @input="adjustTextareaHeight"
               ref="textareaRef"
-              label=""
               class="ollama-chat__textarea"
           >
           </q-input>
@@ -73,11 +91,11 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue'
-import {generateChat, listModels} from '../api/ollama'
+import {computed, onMounted, ref, watch} from 'vue'
+import {generateChat, type IChatResponse, listModels} from '@/api/ollama'
 import {v4 as uuidv4} from 'uuid';
-import {zInputProps, zSelectProps} from '@/components/common/defaultProps.ts';
-import {chartsMap, getCurrentKey, setChartsMap, setCurrentKey} from "@/store";
+import {zInputProps, zSelectProps} from '@/components/common/defaultProps';
+import {chartsMap, getChartsMap, getCurrentKey, type IResponseFeed, setChartsMap, setCurrentKey} from "@/store";
 import ZLabelContainer from "@/components/common/zLabel/ZLabelContainer.vue";
 import ZButtonListContainer from "@/components/common/zButton/ZButtonListContainer.vue";
 import ZButtonDirection from "@/components/common/zButton/ZButtonDirection.vue";
@@ -95,6 +113,7 @@ const isLoading = ref<boolean>(false)
 const selectedFiles = ref<File[]>([])
 const fileContent = ref<string>('')
 const textareaRef = ref<HTMLElement | null>(null)
+const chartsMapToShow = ref<IResponseFeed | undefined>()
 
 const totalFilesSize = computed(() => {
   return (selectedFiles.value.reduce((total, file) => total + file.size, 0) / 1024).toFixed(1)
@@ -115,7 +134,6 @@ const handleFileUpload = (files: File[]) => {
   readFilesContent()
 }
 
-// Чтение содержимого файлов
 const readFilesContent = async () => {
   if (!selectedFiles.value.length) return
 
@@ -148,7 +166,7 @@ const generate = async () => {
 
     if (chartsMap.value.get(ck)?.messages.length === 0) {
       chartsMap.value.set(ck, {
-        model: selectedModel,
+        model: selectedModel.value,
         title: prompt.value,
         messages: [
           {
@@ -158,32 +176,47 @@ const generate = async () => {
         ],
       })
 
-      chartsMap.value.get(ck)?.messages.push({
-        role: 'user',
-        content: fullPrompt
-      })
+      chartsMap.value.get(ck)
+          ?.messages
+          .push({
+            role: 'user',
+            content: fullPrompt
+          })
     } else {
-      chartsMap.value.get(ck)?.messages.push({
-        role: 'user',
-        content: fullPrompt
-      })
+      chartsMap.value.get(ck)
+          ?.messages
+          .push({
+            role: 'user',
+            content: fullPrompt
+          })
     }
 
     const result = await generateChat({
       model: selectedModel.value,
-      messages: chartsMap.value.get(ck)?.messages,
+      messages: chartsMap.value.get(ck)?.messages || [],
       stream: false,
-    })
+    }) as IChatResponse
 
     response.value = result.message.content
 
-    chartsMap.value.get(ck)?.messages.push({
-      role: 'assistant',
-      content: response.value
-    })
+    chartsMap.value.get(ck)
+        ?.messages
+        .push({
+          role: 'assistant',
+          content: response.value
+        })
+
+    chartsMapToShow.value = getChartsMap(ck)
   } catch (error) {
     console.error('Ошибка генерации:', error)
     response.value = 'Произошла ошибка при генерации ответа'
+
+    const ck = getCurrentKey();
+    const messages = chartsMap.value.get(ck)?.messages
+    
+    if (messages && messages.length > 0) {
+      messages.pop()
+    }
   } finally {
     isLoading.value = false
     prompt.value = '';
@@ -193,21 +226,33 @@ const generate = async () => {
 
 function startNewChat() {
   const id = uuidv4();
+
   setCurrentKey(id);
   setChartsMap(id, selectedModel.value, [])
+
   response.value = '';
+  prompt.value = '';
+  selectedFiles.value = [];
+
+  chartsMapToShow.value = getChartsMap(id)
 }
 
-const formattedResponse = computed(() => {
-  if (!response.value) return ''
-
-  return response.value
+const formatResponse = (text: string) => {
+  return text
+      .replace(/\n/g, '<br/>')
+      .replace(/<br\/>\s*<br\/>/g, '<br/>')
+      .replace(/^<br\/>/g, '')
+      .replace(/<br\/>$/g, '')
       .replace(/<think>\n/g, '<think>')
+      .replace(/<\/think><br\/>/g, '</think>')
       .replace(
           /<think>([\s\S]*?)<\/think>/g,
-          '<span class="ollama-chat__think">$1</span>'
-      )
-})
+          (_, content) => {
+            const cleanContent = content.replace(/^<br\/>/, '');
+            return `<span class="ollama-chat__think">${cleanContent}</span>`;
+          }
+      );
+};
 
 onMounted(async () => {
   try {
@@ -221,6 +266,12 @@ onMounted(async () => {
   }
 
   startNewChat();
+})
+
+watch(getCurrentKey, (value, oldValue) => {
+  if (value !== oldValue) {
+    chartsMapToShow.value = getChartsMap(value)
+  }
 })
 </script>
 
@@ -263,7 +314,7 @@ onMounted(async () => {
       max-height: 50vh;
 
       textarea {
-        min-height: 150px !important;
+        min-height: 50px !important;
       }
     }
   }
@@ -280,10 +331,42 @@ onMounted(async () => {
     margin-top: var(--z-layout-gutter-xs);
   }
 
-  &__response {
+  &__history {
+    background-color: var(--main-layout-bg);
+    color: var(--main-layout-color);
     margin-bottom: calc(2 * var(--z-layout-gutter-md));
 
     pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  }
+
+  &__history-item {
+    margin-bottom: 20px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__history-message {
+    padding: var(--z-layout-gutter-sm);
+    border-radius: 4px;
+
+    &--user {
+      background-color: var(--z-purple-h1);
+      width: fit-content;
+      margin-left: auto;
+    }
+
+    &--assistant {
+      background-color: var(--main-layout-bg);
+      max-width: 90%;
+    }
+
+    pre {
+      margin: 0;
       white-space: pre-wrap;
       word-wrap: break-word;
     }
@@ -298,7 +381,11 @@ onMounted(async () => {
     font-style: italic;
     color: var(--z-fifth-text-color);
     font-size: var(--z-font-size-label);
-    border-left: 1px solid var(--z-fifth-text-color);
+    border-left: 1px solid var(--z-purple-h1);
+
+    &:empty {
+      display: none;
+    }
   }
 }
 </style>

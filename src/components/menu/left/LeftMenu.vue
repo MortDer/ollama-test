@@ -16,8 +16,8 @@
               v-for="[key, item] in reversedChartsMap"
               :key="key"
               class="left-menu__item"
-              :class="{ 'is-active': isActive === key }"
-              @click="isActive = key"
+              :class="{ 'is-active': getCurrentKey() === key }"
+              @click="onItemClick(key)"
           >
             <span class="left-menu__decor"></span>
             <span class="left-menu__text">{{ item.title }}</span>
@@ -30,13 +30,12 @@
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
-import {chartsMap, type IResponseFeed} from "@/store";
+import {chartsMap, type IResponseFeed, getCurrentKey, setCurrentKey} from "@/store";
 import ZWindowMaximizeIcon from "@/components/zIconList/ZWindowMaximizeIcon.vue";
 import ZWindowMinimizeIcon from "@/components/zIconList/ZWindowMinimizeIcon.vue";
 import ZButtonSelfIcon from "@/components/common/zButton/ZButtonSelfIcon.vue";
 
 const isCollapsed = ref(false)
-const isActive = ref()
 
 const reversedChartsMap = computed(() => {
   return new Map<string, IResponseFeed>([...chartsMap.value].reverse());
@@ -44,6 +43,10 @@ const reversedChartsMap = computed(() => {
 
 const toggleMenu = () => {
   isCollapsed.value = !isCollapsed.value
+}
+
+const onItemClick = (key: string) => {
+  setCurrentKey(key)
 }
 </script>
 
