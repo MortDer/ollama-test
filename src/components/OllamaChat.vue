@@ -176,7 +176,7 @@ const generate = async () => {
     })
 
     response.value = result.message.content
-    console.log(result);
+
     chartsMap.value.get(ck)?.messages.push({
       role: 'assistant',
       content: response.value
