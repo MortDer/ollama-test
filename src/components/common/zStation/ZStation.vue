@@ -12,27 +12,31 @@
         size="24px"
       />
       <div class="z-station__label text-uppercase">
-        {{ label || '-' }}
+        {{ label || "-" }}
       </div>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed } from "vue";
 
 const props = defineProps<{
-    label?: string,
-    isFinish?: boolean,
-    color?: string[],
-    align: 'left' | 'right',
-    size?: number,
-    mediaSize?: number,
+  label?: string;
+  isFinish?: boolean;
+  color?: string[];
+  align: "left" | "right";
+  size?: number;
+  mediaSize?: number;
 }>();
 
 const DEFAULT_SIZE = 14;
 
-const getColorBorder = computed(() => (props.color ? `var(${props.color?.[0]})` : 'var(--z-second-text-color)'));
-const getColor = computed(() => (props.color ? `var(${props.color?.[1]})` : 'var(--z-text-color)'));
+const getColorBorder = computed(() =>
+  props.color ? `var(${props.color?.[0]})` : "var(--z-second-text-color)",
+);
+const getColor = computed(() =>
+  props.color ? `var(${props.color?.[1]})` : "var(--z-text-color)",
+);
 const getSize = computed(() => `${props.size || DEFAULT_SIZE}px`);
 const getMediaSize = computed(() => `${props.mediaSize || DEFAULT_SIZE}px`);
 </script>
@@ -75,14 +79,16 @@ body.body .reset-library-styles .z-station.z-station {
 
   &.is-right {
     margin-left: auto;
-    padding: var(--z-layout-gutter-xxs) 0 var(--z-layout-gutter-xxs) var(--z-layout-gutter-xs);
+    padding: var(--z-layout-gutter-xxs) 0 var(--z-layout-gutter-xxs)
+      var(--z-layout-gutter-xs);
   }
 
   &--finish,
   &.is-left {
     position: relative;
     margin-left: 0;
-    padding: var(--z-layout-gutter-xxs) var(--z-layout-gutter-xs) var(--z-layout-gutter-xxs) 0;
+    padding: var(--z-layout-gutter-xxs) var(--z-layout-gutter-xs)
+      var(--z-layout-gutter-xxs) 0;
   }
 
   &__arrow {
@@ -112,7 +118,7 @@ body.body .reset-library-styles .z-station.z-station {
 
     &::before {
       position: absolute;
-      content: '';
+      content: "";
       top: 50%;
       width: 7px;
       height: 7px;

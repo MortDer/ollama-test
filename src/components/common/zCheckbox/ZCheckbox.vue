@@ -1,14 +1,7 @@
 <template>
-  <q-checkbox
-    v-bind="$props"
-    size="14px"
-    class="z-checkbox"
-  >
+  <q-checkbox v-bind="$props" size="14px" class="z-checkbox">
     <template v-if="tooltip">
-      <q-tooltip
-        v-bind="$props.tooltip"
-        class="gid-tooltip"
-      >
+      <q-tooltip v-bind="$props.tooltip" class="gid-tooltip">
         <slot name="tooltip" />
       </q-tooltip>
     </template>
@@ -16,23 +9,22 @@
   </q-checkbox>
 </template>
 <script lang="ts" setup>
-import type { QCheckboxProps, QCheckboxSlots, QTooltipProps } from 'quasar';
-import { VNode } from 'vue';
+import type { QCheckboxProps, QCheckboxSlots, QTooltipProps } from "quasar";
+import { VNode } from "vue";
 
 interface IVCheckboxProps extends QCheckboxProps {
-    tooltip?: QTooltipProps | undefined,
+  tooltip?: QTooltipProps | undefined;
 }
 
 interface IVCheckboxSlots extends QCheckboxSlots {
-    tooltip: () => VNode[],
+  tooltip: () => VNode[];
 }
 
 const props = withDefaults(defineProps<IVCheckboxProps>(), {
-    tooltip: undefined,
+  tooltip: undefined,
 });
 
 defineSlots<IVCheckboxSlots>();
-
 </script>
 <style scoped lang="scss">
 body.body .reset-library-styles .z-checkbox.z-checkbox {

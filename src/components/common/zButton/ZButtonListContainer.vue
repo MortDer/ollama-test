@@ -1,14 +1,11 @@
 <template>
-  <div
-    class="z-button-list-container"
-    :class="`is-${contentAlign || 'right'}`"
-  >
+  <div class="z-button-list-container" :class="`is-${contentAlign || 'right'}`">
     <slot />
   </div>
 </template>
 <script setup lang="ts">
 const props = defineProps<{
-    contentAlign?: 'left' | 'right';
+  contentAlign?: "left" | "right";
 }>();
 </script>
 <style lang="scss" scoped>

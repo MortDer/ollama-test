@@ -1,20 +1,11 @@
 <template>
-  <div
-    class="z-source"
-    :class="`is-${type || 'none'}`"
-  >
+  <div class="z-source" :class="`is-${type || 'none'}`">
     <div class="z-source__container">
-      <div
-        v-if="isIndicator"
-        class="z-source__indicator"
-      />
+      <div v-if="isIndicator" class="z-source__indicator" />
       <div class="z-source__text">
-        {{ label || '-' }}
+        {{ label || "-" }}
       </div>
-      <div
-        v-if="isIndicator && type !== 'sent'"
-        class="z-source__icon"
-      >
+      <div v-if="isIndicator && type !== 'sent'" class="z-source__icon">
         <z-arrow-external-right-icon
           v-if="isArrow"
           :class="`is-${type || 'none'}`"
@@ -25,64 +16,55 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed } from 'vue';
-import ZArrowExternalRightIcon from '@/components/redisign/zIconList/ZArrowExternalRightIcon.vue';
+import { computed } from "vue";
+import ZArrowExternalRightIcon from "@/components/redisign/zIconList/ZArrowExternalRightIcon.vue";
 
 const props = defineProps<{
-    label?: string,
-    type?: 'error' | 'none' | 'received' | 'sent' | 'human' | 'scb' | 'emd',
+  label?: string;
+  type?: "error" | "none" | "received" | "sent" | "human" | "scb" | "emd";
 }>();
 
-const notificationTypeList = [
-    'error',
-    'none',
-    'received',
-    'sent',
-];
+const notificationTypeList = ["error", "none", "received", "sent"];
 
-const sourceTypeList = [
-    'human',
-    'scb',
-    'emd',
-];
+const sourceTypeList = ["human", "scb", "emd"];
 
-const arrowIndicatorList = [
-    'error',
-    'received',
-];
+const arrowIndicatorList = ["error", "received"];
 
-const isIndicator = computed(() => notificationTypeList.includes(props.type || 'none'));
-const isArrow = computed(() => arrowIndicatorList.includes(props.type || 'none'));
+const isIndicator = computed(() =>
+  notificationTypeList.includes(props.type || "none"),
+);
+const isArrow = computed(() =>
+  arrowIndicatorList.includes(props.type || "none"),
+);
 
 const getSourceFill = computed(() => {
-    return `var(--z-lp-${props.type || 'none'}-fill)`;
+  return `var(--z-lp-${props.type || "none"}-fill)`;
 });
 
 const getSourceStroke = computed(() => {
-    return `var(--z-lp-${props.type || 'none'}-stroke)`;
+  return `var(--z-lp-${props.type || "none"}-stroke)`;
 });
 
 const getSourceTextColor = computed(() => {
-    if (isIndicator.value) {
-        return `var(--z-lp-${props.type || 'none'}-text)`;
-    }
-    return 'var(--z-white)';
+  if (isIndicator.value) {
+    return `var(--z-lp-${props.type || "none"}-text)`;
+  }
+  return "var(--z-white)";
 });
 
 const getContainerWidth = computed(() => {
-    if (isIndicator.value) {
-        return '100%';
-    }
-    return 'fit-content';
+  if (isIndicator.value) {
+    return "100%";
+  }
+  return "fit-content";
 });
 
 const getSourceGutter = computed(() => {
-    if (isIndicator.value) {
-        return 'var(--z-layout-gutter-xs) var(--z-layout-gutter-md) var(--z-layout-gutter-xs) var(--z-layout-gutter-xs)';
-    }
-    return 'var(--z-layout-gutter-xs)';
+  if (isIndicator.value) {
+    return "var(--z-layout-gutter-xs) var(--z-layout-gutter-md) var(--z-layout-gutter-xs) var(--z-layout-gutter-xs)";
+  }
+  return "var(--z-layout-gutter-xs)";
 });
-
 </script>
 <style lang="scss" scoped>
 body.body .reset-library-styles .z-source.z-source {
@@ -143,7 +125,7 @@ body.body .reset-library-styles .z-source.z-source {
     box-shadow: 0 0 8px v-bind(getSourceTextColor);
 
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       top: 50%;
       left: 50%;

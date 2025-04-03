@@ -1,17 +1,12 @@
 <template>
-  <q-radio
-    v-bind="$props"
-    size="14px"
-    class="z-radio"
-  >
+  <q-radio v-bind="$props" size="14px" class="z-radio">
     <slot />
   </q-radio>
 </template>
 <script lang="ts" setup>
-import { QRadioProps } from 'quasar';
+import { QRadioProps } from "quasar";
 
 const props = defineProps<QRadioProps>();
-
 </script>
 
 <style lang="scss" scoped>

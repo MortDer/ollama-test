@@ -1,36 +1,43 @@
 <template>
   <div class="z-operation">
     <div class="z-operation__label">
-      <span>{{ label || '-' }}</span>
-      <span
-        v-if="fullLabel"
-        :style="{color: getColorBorder}"
-      >{{ fullLabel }}</span>
+      <span>{{ label || "-" }}</span>
+      <span v-if="fullLabel" :style="{ color: getColorBorder }">{{
+        fullLabel
+      }}</span>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed } from "vue";
 
 const props = defineProps<{
-    label?: string,
-    fullLabel?: string,
-    color?: string[],
-    size?: number,
-    mediaSize?: number,
+  label?: string;
+  fullLabel?: string;
+  color?: string[];
+  size?: number;
+  mediaSize?: number;
 }>();
 
 const DEFAULT_SIZE = 14;
 const WIDTH_KOEF = 0.56;
 
-const getColorBorder = computed(() => (props.color ? `var(${props.color?.[0]})` : 'var(--z-second-text-color)'));
-const getColor = computed(() => (props.color ? `var(${props.color?.[1]})` : 'var(--z-text-color)'));
+const getColorBorder = computed(() =>
+  props.color ? `var(${props.color?.[0]})` : "var(--z-second-text-color)",
+);
+const getColor = computed(() =>
+  props.color ? `var(${props.color?.[1]})` : "var(--z-text-color)",
+);
 
 const getSize = computed(() => `${props.size || DEFAULT_SIZE}px`);
-const getWidth = computed(() => (`${(props.size || DEFAULT_SIZE) / WIDTH_KOEF}px`));
+const getWidth = computed(
+  () => `${(props.size || DEFAULT_SIZE) / WIDTH_KOEF}px`,
+);
 
 const getMediaSize = computed(() => `${props.mediaSize || DEFAULT_SIZE}px`);
-const getMediaWidth = computed(() => (`${(props.mediaSize || DEFAULT_SIZE) / WIDTH_KOEF}px`));
+const getMediaWidth = computed(
+  () => `${(props.mediaSize || DEFAULT_SIZE) / WIDTH_KOEF}px`,
+);
 </script>
 <style lang="scss" scoped>
 /* todo: удалить .base-table-layout */
@@ -72,7 +79,7 @@ body.body .reset-library-styles .z-operation.z-operation {
     align-items: center;
     justify-content: center;
 
-    @media(max-width: 1919px) {
+    @media (max-width: 1919px) {
       min-width: v-bind(getMediaWidth);
       min-height: v-bind(getMediaWidth);
     }

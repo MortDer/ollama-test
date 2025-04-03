@@ -1,13 +1,10 @@
 <template>
   <label
-    :class="`z-label z-label--${ labelAlign }`"
-    :style="{color: `var(${props.color || '--z-fourth-text-color'})`}"
+    :class="`z-label z-label--${labelAlign}`"
+    :style="{ color: `var(${props.color || '--z-fourth-text-color'})` }"
   >
     <div class="z-label__wrapper">
-      <div
-        v-if="$slots.labelIcon"
-        class="z-label__icon"
-      >
+      <div v-if="$slots.labelIcon" class="z-label__icon">
         <slot name="labelIcon" />
       </div>
       <div class="z-label__text">
@@ -21,9 +18,9 @@
 
 <script lang="ts" setup>
 const props = defineProps<{
-    text?: string;
-    color?: string;
-    labelAlign?: 'center' | 'none';
+  text?: string;
+  color?: string;
+  labelAlign?: "center" | "none";
 }>();
 </script>
 

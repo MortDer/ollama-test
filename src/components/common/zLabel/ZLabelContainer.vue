@@ -1,49 +1,30 @@
 <template>
-  <section
-      class="z-label-container"
-      :class="getClasses"
-  >
-    <div
-        v-if="text || $slots.labelText"
-        class="z-label-container__title"
-    >
-      <z-label
-          :text="text"
-          :color="labelColor"
-          :label-align="labelAlign"
-      >
-        <template
-            v-if="$slots.labelIcon"
-            #labelIcon
-        >
-          <slot name="labelIcon"/>
+  <section class="z-label-container" :class="getClasses">
+    <div v-if="text || $slots.labelText" class="z-label-container__title">
+      <z-label :text="text" :color="labelColor" :label-align="labelAlign">
+        <template v-if="$slots.labelIcon" #labelIcon>
+          <slot name="labelIcon" />
         </template>
-        <slot
-            v-if="$slots.labelText"
-            name="labelText"
-        />
+        <slot v-if="$slots.labelText" name="labelText" />
       </z-label>
     </div>
-    <div
-        v-if="$slots.default"
-        class="z-label-container__body"
-    >
-      <slot/>
+    <div v-if="$slots.default" class="z-label-container__body">
+      <slot />
     </div>
   </section>
 </template>
 
 <script lang="ts" setup>
-import ZLabel from '@/components/common/zLabel/ZLabel.vue';
-import {computed} from 'vue';
+import ZLabel from "@/components/common/zLabel/ZLabel.vue";
+import { computed } from "vue";
 
 interface IZLabelContainer {
   text?: string;
   labelColor?: string;
   backgroundClass?: string;
   noBorder?: boolean;
-  labelAlign?: 'center' | 'none';
-  paddingSize?: 'md' | 'sm';
+  labelAlign?: "center" | "none";
+  paddingSize?: "md" | "sm";
   paddingHorizontal?: boolean;
 }
 
@@ -53,15 +34,14 @@ const props = withDefaults(defineProps<IZLabelContainer>(), {
 
 const getClasses = computed(() => {
   return [
-    props.backgroundClass || 'z-3d-main-color-theme',
-    `padding-size--${props.paddingSize || 'md'}`,
+    props.backgroundClass || "z-3d-main-color-theme",
+    `padding-size--${props.paddingSize || "md"}`,
     {
-      'no-border': props.noBorder,
-      'padding-horizontal-none': !props.paddingHorizontal,
+      "no-border": props.noBorder,
+      "padding-horizontal-none": !props.paddingHorizontal,
     },
   ];
 });
-
 </script>
 
 <style lang="scss" scoped>

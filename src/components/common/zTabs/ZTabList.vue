@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="z-tab-list-container"
-    :class="`size-${props.size || 'md'}`"
-  >
+  <div class="z-tab-list-container" :class="`size-${props.size || 'md'}`">
     <q-tabs
       v-model="getModelValue"
       class="z-tab-list"
@@ -26,26 +23,26 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 const props = defineProps<{
-    modelValue: string;
-    tabList: { name: string, label: string }[];
-    size?: 'sm' | 'lg'
+  modelValue: string;
+  tabList: { name: string; label: string }[];
+  size?: "sm" | "lg";
 }>();
 
 const emit = defineEmits<{
-    (e: 'update:model-value', value: string): void;
+  (e: "update:model-value", value: string): void;
 }>();
 
 const getModelValue = computed({
-    get() {
-        return props.modelValue;
-    },
+  get() {
+    return props.modelValue;
+  },
 
-    set(value: string) {
-        emit('update:model-value', value);
-    },
+  set(value: string) {
+    emit("update:model-value", value);
+  },
 });
 </script>
 <style lang="scss" scoped>

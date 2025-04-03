@@ -47,39 +47,38 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { StateArrow, StationElementType } from '@/components/station/types';
+import { computed, onMounted, ref } from "vue";
+import { StateArrow, StationElementType } from "@/components/station/types";
 
-import SignalsListModal from '@/components/station/stationEntities/atoms/SignalsListModal.vue';
-import useRequest from '@/compositions/useRequest';
-import { SchemeSignalDirectory } from '@/api/data-contracts';
-import { createTabloDkInstance } from '@/api';
-import { All } from '@/apiTabloDk/All';
-import { messages } from '@/components/station/stationEntities/atoms/locale/SignalsSelectLocale';
-import { useI18n } from 'vue-i18n';
-import ZRow from '@/components/redisign/common/zGrid/ZRow.vue';
-import ZCell from '@/components/redisign/common/zGrid/ZCell.vue';
-import { zInputProps } from '../../defaultProps';
-import ZButton from '../zButton/ZButton.vue';
+import SignalsListModal from "@/components/station/stationEntities/atoms/SignalsListModal.vue";
+import useRequest from "@/compositions/useRequest";
+import { SchemeSignalDirectory } from "@/api/data-contracts";
+import { createTabloDkInstance } from "@/api";
+import { All } from "@/apiTabloDk/All";
+import { messages } from "@/components/station/stationEntities/atoms/locale/SignalsSelectLocale";
+import { useI18n } from "vue-i18n";
+import ZRow from "@/components/redisign/common/zGrid/ZRow.vue";
+import ZCell from "@/components/redisign/common/zGrid/ZCell.vue";
+import { zInputProps } from "../../defaultProps";
+import ZButton from "../zButton/ZButton.vue";
 
 const allApi = createTabloDkInstance(All);
 
 const props = defineProps<{
-    modelValue: SchemeSignalDirectory;
-    esr: string;
-    signal?: SchemeSignalDirectory,
-    typeOb: StationElementType,
-    state?: StateArrow,
-    selectFirst?: boolean,
-
+  modelValue: SchemeSignalDirectory;
+  esr: string;
+  signal?: SchemeSignalDirectory;
+  typeOb: StationElementType;
+  state?: StateArrow;
+  selectFirst?: boolean;
 }>();
 
 const emit = defineEmits<{
-    (e: 'update:model-value', value: SchemeSignalDirectory): void;
+  (e: "update:model-value", value: SchemeSignalDirectory): void;
 }>();
 
 const { t } = useI18n({
-    messages,
+  messages,
 });
 const signalListModalIsOpen = ref(false);
 const allSignalListModalIsOpen = ref(false);
@@ -88,61 +87,59 @@ const rows = ref<SchemeSignalDirectory[]>([]);
 const allRows = ref<SchemeSignalDirectory[]>([]);
 
 const filteredRows = computed(() => {
-    return props.typeOb === StationElementType.Bu ? rows.value.filter((row) => row.presence === 'нет') : rows.value;
+  return props.typeOb === StationElementType.Bu
+    ? rows.value.filter((row) => row.presence === "нет")
+    : rows.value;
 });
 
-const getAllSignalsList = async (payload: { esrst: number, typeOb?: StationElementType, state?: StateArrow }) => {
-    let val: SchemeSignalDirectory[] = [];
+const getAllSignalsList = async (payload: {
+  esrst: number;
+  typeOb?: StationElementType;
+  state?: StateArrow;
+}) => {
+  let val: SchemeSignalDirectory[] = [];
 
-    await useRequest({
-        request: async () => {
-            const { data } = await allApi.getAllSignalNameListOnStation(payload);
+  await useRequest({
+    request: async () => {
+      const { data } = await allApi.getAllSignalNameListOnStation(payload);
 
-            return data.data;
-        },
-        successCallback: (value) => {
-            val = value || [];
-        },
-    })
-        .sendRequest();
+      return data.data;
+    },
+    successCallback: (value) => {
+      val = value || [];
+    },
+  }).sendRequest();
 
-    return val;
+  return val;
 };
 
 const openAllSignalsModal = async () => {
-    const { esr } = props;
+  const { esr } = props;
 
-    const payload = {
-        esrst: Number(esr),
-    };
+  const payload = {
+    esrst: Number(esr),
+  };
 
-    allRows.value = await getAllSignalsList(payload);
-    allSignalListModalIsOpen.value = true;
+  allRows.value = await getAllSignalsList(payload);
+  allSignalListModalIsOpen.value = true;
 };
 
 const handleSelect = (value: SchemeSignalDirectory) => {
-    signalListModalIsOpen.value = false;
-    allSignalListModalIsOpen.value = false;
-    emit('update:model-value', value);
+  signalListModalIsOpen.value = false;
+  allSignalListModalIsOpen.value = false;
+  emit("update:model-value", value);
 };
 
 onMounted(async () => {
-    const {
-        esr,
-        typeOb,
-        state,
-    } = props;
-    const payload = {
-        esrst: Number(esr),
-        typeOb,
-        state: state || undefined,
-    };
+  const { esr, typeOb, state } = props;
+  const payload = {
+    esrst: Number(esr),
+    typeOb,
+    state: state || undefined,
+  };
 
-    rows.value = await getAllSignalsList(payload);
+  rows.value = await getAllSignalsList(payload);
 });
-
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

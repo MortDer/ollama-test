@@ -6,14 +6,14 @@
   </section>
 </template>
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 const props = defineProps<{
-    cellCount?: number;
+  cellCount?: number;
 }>();
 
 const getCellCount = computed(() => {
-    return `${props.cellCount || '1'}`;
+  return `${props.cellCount || "1"}`;
 });
 </script>
 
@@ -35,7 +35,11 @@ const getCellCount = computed(() => {
     gap: var(--z-cell-gutter);
 
     &:deep(.z-cell) {
-      --z-cell-width: calc((100% / var(--z-cell-count)) - ((var(--z-cell-count) - 1) * var(--z-cell-gutter)) / var(--z-cell-count));
+      --z-cell-width: calc(
+        (100% / var(--z-cell-count)) -
+          ((var(--z-cell-count) - 1) * var(--z-cell-gutter)) /
+          var(--z-cell-count)
+      );
 
       max-width: var(--z-cell-width);
       flex-basis: var(--z-cell-width);

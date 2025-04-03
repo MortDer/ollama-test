@@ -1,5 +1,5 @@
 <template>
-  <div :class="`z-indicator z-indicator--${ mod }`">
+  <div :class="`z-indicator z-indicator--${mod}`">
     <div
       ref="unitRef"
       class="z-indicator__value"
@@ -8,72 +8,71 @@
       <span v-if="!isNumber">{{ value }}</span>
       <span v-else-if="unit">&nbsp;{{ unit }}</span>
     </div>
-    <div
-      v-if="mod !== 'none'"
-      class="z-indicator__icon"
-    >
+    <div v-if="mod !== 'none'" class="z-indicator__icon">
       <z-arrow-external-right-icon />
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import {
-    computed, onMounted, ref, watch,
-} from 'vue';
-import ZArrowExternalRightIcon from '../../zIconList/ZArrowExternalRightIcon.vue';
+import { computed, onMounted, ref, watch } from "vue";
+import ZArrowExternalRightIcon from "../../zIconList/ZArrowExternalRightIcon.vue";
 
-const props = withDefaults(defineProps<{
+const props = withDefaults(
+  defineProps<{
     value: number | string;
     unit?: string;
-    mod?: 'down' | 'up' | 'none';
+    mod?: "down" | "up" | "none";
     animateAction?: boolean;
-}>(), {
-    mod: 'none',
-    unit: '',
-});
+  }>(),
+  {
+    mod: "none",
+    unit: "",
+  },
+);
 
 const unitRef = ref();
 const timeout = ref();
 
 const unitValue = computed(() => props.value);
-const isNumber = computed(() => typeof unitValue.value === 'number');
+const isNumber = computed(() => typeof unitValue.value === "number");
 const isDecimals = computed(
-    () =>
-        isNumber.value
-        && (String(unitValue.value)
-            .indexOf('.') !== -1
-            || String(unitValue.value)
-                .indexOf(',') !== -1),
+  () =>
+    isNumber.value &&
+    (String(unitValue.value).indexOf(".") !== -1 ||
+      String(unitValue.value).indexOf(",") !== -1),
 );
 
 const getUnitValue = (value: number | string) => {
-    if (isNumber.value) {
-        (unitRef.value as HTMLElement)?.style.setProperty(
-            '--percent',
-            String(value),
-        );
-    }
+  if (isNumber.value) {
+    (unitRef.value as HTMLElement)?.style.setProperty(
+      "--percent",
+      String(value),
+    );
+  }
 };
 
 const getAnimateUnit = () => {
-    clearTimeout(timeout.value);
+  clearTimeout(timeout.value);
 
-    if (isDecimals.value || isNumber.value) {
-        getUnitValue(0);
+  if (isDecimals.value || isNumber.value) {
+    getUnitValue(0);
 
-        timeout.value = setTimeout(() => {
-            getUnitValue(unitValue.value);
-        }, 200);
-    }
+    timeout.value = setTimeout(() => {
+      getUnitValue(unitValue.value);
+    }, 200);
+  }
 };
 
 onMounted(() => {
-    getAnimateUnit();
+  getAnimateUnit();
 });
 
-watch(() => props.animateAction, () => {
+watch(
+  () => props.animateAction,
+  () => {
     getAnimateUnit();
-});
+  },
+);
 </script>
 
 <style lang="scss" scoped>
@@ -139,7 +138,6 @@ body.body .reset-library-styles .z-indicator.z-indicator {
   }
 
   &__value {
-
     &.is-animate {
       --number: 1234;
       --integer: calc(var(--number));

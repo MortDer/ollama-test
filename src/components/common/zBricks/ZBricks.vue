@@ -1,15 +1,9 @@
 <template>
   <fieldset class="z-bricks fieldset">
-    <legend
-      v-if="props.title"
-      class="fieldset__legend"
-    >
+    <legend v-if="props.title" class="fieldset__legend">
       <strong>{{ props.title }}:</strong>
     </legend>
-    <div
-      class="z-bricks__list"
-      :class="{'z-bricks__list--row': brickCount}"
-    >
+    <div class="z-bricks__list" :class="{ 'z-bricks__list--row': brickCount }">
       <q-btn
         v-for="(item, index) in list"
         :key="item.value"
@@ -26,84 +20,82 @@
 </template>
 
 <script setup lang="ts" generic="T extends string | number">
-import { isDefined } from '@/utils';
-import { computed, onMounted } from 'vue';
+import { isDefined } from "@/utils";
+import { computed, onMounted } from "vue";
 
 interface BrickItem<P> {
-    label: string,
-    value: P
+  label: string;
+  value: P;
 }
 
 const props = defineProps<{
-    modelValue: T,
-    list: BrickItem<T>[],
-    title?: string,
-    brickCount?: number,
-    disabled?: boolean
+  modelValue: T;
+  list: BrickItem<T>[];
+  title?: string;
+  brickCount?: number;
+  disabled?: boolean;
 }>();
 
 const emit = defineEmits<{
-    (e: 'update:model-value', value: T): void;
-    (e: 'update:init', value: boolean): void;
+  (e: "update:model-value", value: T): void;
+  (e: "update:init", value: boolean): void;
 }>();
 
 const brickValue = computed({
-    get(): T {
-        return props.modelValue;
-    },
+  get(): T {
+    return props.modelValue;
+  },
 
-    set(value: T) {
-        emit('update:model-value', value);
-    },
+  set(value: T) {
+    emit("update:model-value", value);
+  },
 });
 
 const getBrickCount = computed(() => {
-    return `${props.brickCount || '1'}`;
+  return `${props.brickCount || "1"}`;
 });
 
 const getReminder = computed(() => {
-    if (!isDefined(props.brickCount)) return undefined;
+  if (!isDefined(props.brickCount)) return undefined;
 
-    return props.list.length % props.brickCount;
+  return props.list.length % props.brickCount;
 });
 
 const getListLength = computed(() => {
-    return props.list.length - 1;
+  return props.list.length - 1;
 });
 
 const getCountIndex = computed(() => {
-    if (!isDefined(props.brickCount)) return undefined;
+  if (!isDefined(props.brickCount)) return undefined;
 
-    return props.brickCount - 1;
+  return props.brickCount - 1;
 });
 
 const getLastChild = () => {
-    return getReminder.value
-        ? undefined
-        : getListLength.value;
+  return getReminder.value ? undefined : getListLength.value;
 };
 
 const getLastRow = () => {
-    if (!isDefined(getCountIndex.value)) return undefined;
+  if (!isDefined(getCountIndex.value)) return undefined;
 
-    if (props.brickCount === 1) return getListLength.value;
+  if (props.brickCount === 1) return getListLength.value;
 
-    return getReminder.value
-        ? getListLength.value - getReminder.value + 1
-        : getListLength.value - getCountIndex.value;
+  return getReminder.value
+    ? getListLength.value - getReminder.value + 1
+    : getListLength.value - getCountIndex.value;
 };
 
 const getButtonClasses = (item: BrickItem<T>, index: number) => {
-    return {
-        'is-active': brickValue.value === item.value,
-        'is-top-left': index === 0,
-        'is-top-right': index === getCountIndex.value,
-        'is-bottom-right': index === getLastChild(),
-        'is-bottom-left': index === getLastRow(),
-    };
+  return {
+    "is-active": brickValue.value === item.value,
+    "is-top-left": index === 0,
+    "is-top-right": index === getCountIndex.value,
+    "is-bottom-right": index === getLastChild(),
+    "is-bottom-left": index === getLastRow(),
+  };
 };
 
-onMounted(() => emit('update:init', true));
+onMounted(() => emit("update:init", true));
 </script>
 
 <style scoped lang="scss">
@@ -126,34 +118,44 @@ body.body .reset-library-styles .z-bricks.z-bricks {
     display: flex;
 
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background-color: var(--z-accent-border);
-      clip-path: polygon(6px 0,
-          calc(100% - 6px) 0, 100% 6px,
-          100% calc(100% - 6px), calc(100% - 6px) 100%,
-          6px 100%, 0 calc(100% - 6px),
-          0 6px);
+      clip-path: polygon(
+        6px 0,
+        calc(100% - 6px) 0,
+        100% 6px,
+        100% calc(100% - 6px),
+        calc(100% - 6px) 100%,
+        6px 100%,
+        0 calc(100% - 6px),
+        0 6px
+      );
       z-index: 0;
     }
 
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background-color: var(--main-layout-bg);
-      clip-path: polygon(7px 1px,
-          calc(100% - 7px) 1px, calc(100% - 1px) 7px,
-          calc(100% - 1px) calc(100% - 7px), calc(100% - 7px) calc(100% - 1px),
-          7px calc(100% - 1px), 1px calc(100% - 7px),
-          1px 7px);
+      clip-path: polygon(
+        7px 1px,
+        calc(100% - 7px) 1px,
+        calc(100% - 1px) 7px,
+        calc(100% - 1px) calc(100% - 7px),
+        calc(100% - 7px) calc(100% - 1px),
+        7px calc(100% - 1px),
+        1px calc(100% - 7px),
+        1px 7px
+      );
       z-index: 1;
     }
 
@@ -170,81 +172,104 @@ body.body .reset-library-styles .z-bricks.z-bricks {
 
         &.q-btn {
           &.is-top-left {
-            clip-path: polygon(4px 0,
-                100% 0,
-                100% 100%,
-                0 100%, 0 calc(100% - 4px),
-                0 4px);
+            clip-path: polygon(
+              4px 0,
+              100% 0,
+              100% 100%,
+              0 100%,
+              0 calc(100% - 4px),
+              0 4px
+            );
           }
 
           &.is-top-right {
-            clip-path: polygon(0 0,
-                calc(100% - 4px) 0,
-                100% 4px,
-                100% 100%, 100% 100%,
-                0 100%);
+            clip-path: polygon(
+              0 0,
+              calc(100% - 4px) 0,
+              100% 4px,
+              100% 100%,
+              100% 100%,
+              0 100%
+            );
           }
 
           &.is-top-left.is-top-right {
-            clip-path: polygon(4px 0,
-                calc(100% - 4px) 0, 100% 4px,
-                100% 100%,
-                0 100%,
-                0 4px);
+            clip-path: polygon(
+              4px 0,
+              calc(100% - 4px) 0,
+              100% 4px,
+              100% 100%,
+              0 100%,
+              0 4px
+            );
           }
 
           &.is-bottom-right {
-            clip-path: polygon(0 0,
-                calc(100% - 4px) 0,
-                100% 0,
-                100% calc(100% - 4px), calc(100% - 4px) 100%,
-                0 100%);
+            clip-path: polygon(
+              0 0,
+              calc(100% - 4px) 0,
+              100% 0,
+              100% calc(100% - 4px),
+              calc(100% - 4px) 100%,
+              0 100%
+            );
           }
 
           &.is-bottom-left {
-            clip-path: polygon(0 0,
-                100% 0,
-                100% 100%,
-                4px 100%, 0 calc(100% - 4px),
-                0 4px);
+            clip-path: polygon(
+              0 0,
+              100% 0,
+              100% 100%,
+              4px 100%,
+              0 calc(100% - 4px),
+              0 4px
+            );
           }
 
           &.is-bottom-right.is-bottom-left {
-            clip-path: polygon(0 0,
-                100% 0,
-                100% calc(100% - 4px),
-                calc(100% - 4px) 100%,
-                4px 100%,
-                0 calc(100% - 4px));
+            clip-path: polygon(
+              0 0,
+              100% 0,
+              100% calc(100% - 4px),
+              calc(100% - 4px) 100%,
+              4px 100%,
+              0 calc(100% - 4px)
+            );
           }
 
           &.is-top-right.is-bottom-right {
-            clip-path: polygon(0 0,
-                calc(100% - 4px) 0,
-                100% 4px,
-                100% calc(100% - 4px),
-                calc(100% - 4px) 100%,
-                0 100%);
+            clip-path: polygon(
+              0 0,
+              calc(100% - 4px) 0,
+              100% 4px,
+              100% calc(100% - 4px),
+              calc(100% - 4px) 100%,
+              0 100%
+            );
           }
 
           &.is-top-left.is-bottom-left {
-            clip-path: polygon(4px 0,
-                100% 0,
-                100% 100%,
-                4px 100%,
-                0 calc(100% - 4px),
-                0 4px);
+            clip-path: polygon(
+              4px 0,
+              100% 0,
+              100% 100%,
+              4px 100%,
+              0 calc(100% - 4px),
+              0 4px
+            );
           }
 
           &.is-top-left.is-top-right.is-bottom-right.is-bottom-left {
-            clip-path: polygon(4px 0,
-                calc(100% - 4px) 0,
-                100% 4px,
-                100% calc(100% - 4px),
-                calc(100% - 4px) 100%,
-                4px 100%,
-                0 calc(100% - 4px),
-                0 4px);
+            clip-path: polygon(
+              4px 0,
+              calc(100% - 4px) 0,
+              100% 4px,
+              100% calc(100% - 4px),
+              calc(100% - 4px) 100%,
+              4px 100%,
+              0 calc(100% - 4px),
+              0 4px
+            );
           }
         }
       }
@@ -264,30 +289,38 @@ body.body .reset-library-styles .z-bricks.z-bricks {
     }
 
     &:first-child {
-      clip-path: polygon(4px 0,
-          100% 0,
-          100% 100%,
-          4px 100%, 0 calc(100% - 4px),
-          0 4px);
+      clip-path: polygon(
+        4px 0,
+        100% 0,
+        100% 100%,
+        4px 100%,
+        0 calc(100% - 4px),
+        0 4px
+      );
     }
 
     &:last-child {
-      clip-path: polygon(0 0,
-          calc(100% - 4px) 0,
-          100% 4px,
-          100% calc(100% - 4px), calc(100% - 4px) 100%,
-          0 100%);
+      clip-path: polygon(
+        0 0,
+        calc(100% - 4px) 0,
+        100% 4px,
+        100% calc(100% - 4px),
+        calc(100% - 4px) 100%,
+        0 100%
+      );
     }
 
     &:first-child:last-child {
-      clip-path: polygon(4px 0,
-          calc(100% - 4px) 0,
-          100% 4px,
-          100% calc(100% - 4px),
-          calc(100% - 4px) 100%,
-          4px 100%,
-          0 calc(100% - 4px),
-          0 4px);
+      clip-path: polygon(
+        4px 0,
+        calc(100% - 4px) 0,
+        100% 4px,
+        100% calc(100% - 4px),
+        calc(100% - 4px) 100%,
+        4px 100%,
+        0 calc(100% - 4px),
+        0 4px
+      );
     }
 
     &.q-btn {

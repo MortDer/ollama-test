@@ -28,43 +28,46 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import ZSearchIcon from '@/components/redisign/zIconList/ZSearchIcon.vue';
-import ZButton from '@/components/redisign/common/zButton/ZButton.vue';
+import { computed, ref, watch } from "vue";
+import ZSearchIcon from "@/components/redisign/zIconList/ZSearchIcon.vue";
+import ZButton from "@/components/redisign/common/zButton/ZButton.vue";
 
-const props = withDefaults(defineProps<{
+const props = withDefaults(
+  defineProps<{
     modelValue: string;
     placeholder?: string;
     debounceTime?: number;
     bordered?: boolean;
     isActive: boolean;
-}>(), {
-    placeholder: 'Найти форму...',
+  }>(),
+  {
+    placeholder: "Найти форму...",
     debounceTime: 300,
     bordered: false,
-});
+  },
+);
 
 const emit = defineEmits<{
-    (e: 'update:model-value', value: string): void;
-    (e: 'update:is-active', value: boolean): void;
+  (e: "update:model-value", value: string): void;
+  (e: "update:is-active", value: boolean): void;
 }>();
 
 const searchQuery = ref(props.modelValue);
 
 const searchOpenedComputed = computed({
-    get() {
-        return props.isActive;
-    },
-    set(value: boolean) {
-        emit('update:is-active', value);
-    },
+  get() {
+    return props.isActive;
+  },
+  set(value: boolean) {
+    emit("update:is-active", value);
+  },
 });
 
 const toggleSearchOpened = () => {
-    searchOpenedComputed.value = !searchOpenedComputed.value;
+  searchOpenedComputed.value = !searchOpenedComputed.value;
 };
 
 watch(searchQuery, (newValue) => {
-    emit('update:model-value', newValue);
+  emit("update:model-value", newValue);
 });
 </script>

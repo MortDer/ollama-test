@@ -20,51 +20,53 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed } from "vue";
 
 const props = defineProps<{
-    text?: string;
-    size?: 'xs' | 'sm' | 'md';
-    color?: 'blue' | 'red' | 'purple' | 'light-green';
-    isShy?: boolean;
-    disabled?: boolean;
-    isLeft?: boolean;
-    isActive?: boolean;
+  text?: string;
+  size?: "xs" | "sm" | "md";
+  color?: "blue" | "red" | "purple" | "light-green";
+  isShy?: boolean;
+  disabled?: boolean;
+  isLeft?: boolean;
+  isActive?: boolean;
 }>();
 
 const emit = defineEmits<{
-    (e: 'click', evt?: Event): void
+  (e: "click", evt?: Event): void;
 }>();
 
 const getButtonClasses = computed(() => {
-    return [
-        {
-            'is-active': props.isActive,
-            'is-shy': props.isShy,
-            'is-left': props.isLeft,
-        },
-        `size-${props.size || 'sm'}`,
-    ];
+  return [
+    {
+      "is-active": props.isActive,
+      "is-shy": props.isShy,
+      "is-left": props.isLeft,
+    },
+    `size-${props.size || "sm"}`,
+  ];
 });
 
 const getAccentColor = computed(() => {
-    return `var(--z-button-direction-${props.color || 'blue'}-color)`;
+  return `var(--z-button-direction-${props.color || "blue"}-color)`;
 });
 
 const getAccentStroke = computed(() => {
-    return `var(--z-button-direction-${props.color || 'blue'}-stroke)`;
+  return `var(--z-button-direction-${props.color || "blue"}-stroke)`;
 });
 
 const getAccentDecor = computed(() => {
-    return `var(--z-button-direction-${props.color || 'blue'}-decor)`;
+  return `var(--z-button-direction-${props.color || "blue"}-decor)`;
 });
 
 const onClick = (evt?: Event) => {
-    emit('click', evt);
+  emit("click", evt);
 };
 </script>
 <style lang="scss" scoped>
-body.body .reset-library-styles .z-button-direction-container.z-button-direction-container {
+body.body
+  .reset-library-styles
+  .z-button-direction-container.z-button-direction-container {
   &,
   *,
   &:deep(*) {
@@ -109,58 +111,83 @@ body.body .reset-library-styles .z-button-direction-container.z-button-direction
   height: 100%;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    clip-path: polygon(0 0,
-        100% 0, 100% 6px,
-        100% calc(100% - 6px), calc(100% - 6px) 100%,
-        0 100%, 0px calc(100% - 4px),
-        2px calc(100% - 6px), 2px 6px, 0 4px,
-        0 0);
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 6px,
+      100% calc(100% - 6px),
+      calc(100% - 6px) 100%,
+      0 100%,
+      0px calc(100% - 4px),
+      2px calc(100% - 6px),
+      2px 6px,
+      0 4px,
+      0 0
+    );
     background-color: var(--z-button-direction-stroke);
     z-index: 1;
     transition: var(--z-transition-duration);
   }
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    clip-path: polygon(1px 1px,
-        calc(100% - 1px) 1px, calc(100% - 1px) 7px,
-        calc(100% - 1px) calc(100% - 7px), calc(100% - 7px) calc(100% - 1px),
-        1px calc(100% - 1px), 1px calc(100% - 4px),
-        3px calc(100% - 6px), 3px 6px, 1px 4px,
-        1px 1px);
+    clip-path: polygon(
+      1px 1px,
+      calc(100% - 1px) 1px,
+      calc(100% - 1px) 7px,
+      calc(100% - 1px) calc(100% - 7px),
+      calc(100% - 7px) calc(100% - 1px),
+      1px calc(100% - 1px),
+      1px calc(100% - 4px),
+      3px calc(100% - 6px),
+      3px 6px,
+      1px 4px,
+      1px 1px
+    );
     background-color: var(--z-button-direction-background);
     z-index: 2;
   }
 
   &.is-left {
     &::before {
-      clip-path: polygon(0 0,
-          100% 0,
-          100% 4px, calc(100% - 2px) 6px,
-          calc(100% - 2px) calc(100% - 6px), 100% calc(100% - 4px),
-          100% 100%, 6px 100%,
-          0 calc(100% - 6px),
-          0 0);
+      clip-path: polygon(
+        0 0,
+        100% 0,
+        100% 4px,
+        calc(100% - 2px) 6px,
+        calc(100% - 2px) calc(100% - 6px),
+        100% calc(100% - 4px),
+        100% 100%,
+        6px 100%,
+        0 calc(100% - 6px),
+        0 0
+      );
     }
 
     &::after {
-      clip-path: polygon(1px 1px,
-          calc(100% - 1px) 1px, calc(100% - 1px) 4px,
-          calc(100% - 3px) 6px, calc(100% - 3px) calc(100% - 6px),
-          calc(100% - 1px) calc(100% - 4px), calc(100% - 1px) calc(100% - 1px),
-          7px calc(100% - 1px), 1px calc(100% - 7px),
-          1px 1px);
+      clip-path: polygon(
+        1px 1px,
+        calc(100% - 1px) 1px,
+        calc(100% - 1px) 4px,
+        calc(100% - 3px) 6px,
+        calc(100% - 3px) calc(100% - 6px),
+        calc(100% - 1px) calc(100% - 4px),
+        calc(100% - 1px) calc(100% - 1px),
+        7px calc(100% - 1px),
+        1px calc(100% - 7px),
+        1px 1px
+      );
     }
   }
 

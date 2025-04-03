@@ -1,20 +1,19 @@
 <template>
   <div class="main-layout">
     <div class="main-layout__left">
-      <LeftMenu/>
+      <LeftMenu />
     </div>
     <div class="main-layout__content">
       <main class="main">
-        <OllamaChat/>
+        <OllamaChat />
       </main>
     </div>
-
   </div>
 </template>
 
 <script setup lang="ts">
-import OllamaChat from '@/components/OllamaChat.vue';
-import LeftMenu from '@/components/menu/left/LeftMenu.vue';
+import OllamaChat from "@/components/OllamaChat.vue";
+import LeftMenu from "@/components/menu/left/LeftMenu.vue";
 </script>
 
 <style scoped lang="scss">
@@ -61,5 +60,3 @@ import LeftMenu from '@/components/menu/left/LeftMenu.vue';
 //  margin-left: 60px;
 //}
 </style>
-
-

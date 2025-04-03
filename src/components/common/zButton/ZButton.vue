@@ -7,16 +7,10 @@
       @click="onClick"
     >
       <div class="z-button__content">
-        <span
-          v-if="$slots.icon"
-          class="z-button__icon"
-        >
+        <span v-if="$slots.icon" class="z-button__icon">
           <slot name="icon" />
         </span>
-        <span
-          v-if="props.text || $slots.default"
-          class="z-button__text"
-        >
+        <span v-if="props.text || $slots.default" class="z-button__text">
           <span v-if="props.text">{{ props.text }}</span>
           <span v-else><slot /></span>
         </span>
@@ -25,57 +19,59 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, useSlots } from 'vue';
+import { computed, useSlots } from "vue";
 
 const props = defineProps<{
-    text?: string;
-    size?: 'sm' | 'md';
-    color?: 'blue' | 'red' | 'purple' | 'light-green';
-    isShy?: boolean;
-    iconPosition?: 'left' | 'right';
-    disabled?: boolean;
-    isAnimate?: boolean;
-    isClickAnimate?: boolean;
-    isActive?: boolean;
+  text?: string;
+  size?: "sm" | "md";
+  color?: "blue" | "red" | "purple" | "light-green";
+  isShy?: boolean;
+  iconPosition?: "left" | "right";
+  disabled?: boolean;
+  isAnimate?: boolean;
+  isClickAnimate?: boolean;
+  isActive?: boolean;
 }>();
 
 const emit = defineEmits<{
-    (e: 'click', evt?: Event): void
+  (e: "click", evt?: Event): void;
 }>();
 
 const slots = useSlots();
 
 const getButtonClasses = computed(() => {
-    return [
-        {
-            'is-active': props.isActive,
-            'is-shy': props.isShy,
-            'is-animate': props.isAnimate && slots.icon && (slots.default || props.text),
-            'is-click-animate': props.isClickAnimate && slots.icon && (slots.default || props.text),
-        },
-        `size-${props.size || 'sm'}`,
-        slots.icon ? `is-${props.iconPosition || 'right'}` : '',
-    ];
+  return [
+    {
+      "is-active": props.isActive,
+      "is-shy": props.isShy,
+      "is-animate":
+        props.isAnimate && slots.icon && (slots.default || props.text),
+      "is-click-animate":
+        props.isClickAnimate && slots.icon && (slots.default || props.text),
+    },
+    `size-${props.size || "sm"}`,
+    slots.icon ? `is-${props.iconPosition || "right"}` : "",
+  ];
 });
 
 const getContainerAlign = computed(() => {
-    return props.iconPosition === 'left' ? 'flex-start' : 'flex-end';
+  return props.iconPosition === "left" ? "flex-start" : "flex-end";
 });
 
 const getAccentColor = computed(() => {
-    return `var(--z-button-${props.color || 'blue'}-color)`;
+  return `var(--z-button-${props.color || "blue"}-color)`;
 });
 
 const getAccentStroke = computed(() => {
-    return `var(--z-button-${props.color || 'blue'}-stroke)`;
+  return `var(--z-button-${props.color || "blue"}-stroke)`;
 });
 
 const getAccentDecor = computed(() => {
-    return `var(--z-button-${props.color || 'blue'}-decor)`;
+  return `var(--z-button-${props.color || "blue"}-decor)`;
 });
 
 const onClick = (evt?: Event) => {
-    emit('click', evt);
+  emit("click", evt);
 };
 </script>
 <style lang="scss" scoped>
@@ -140,7 +136,7 @@ body.body .reset-library-styles .z-button-container.z-button-container {
   border-radius: var(--z-border-radius-xs);
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -189,7 +185,7 @@ body.body .reset-library-styles .z-button-container.z-button-container {
   &.is-right,
   &.is-left {
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
       left: calc(0.5 * var(--z-layout-gutter-xxs));

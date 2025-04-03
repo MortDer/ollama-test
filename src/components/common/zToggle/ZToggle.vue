@@ -7,11 +7,8 @@ import { ref } from "vue";
       v-model="toggleModelValue"
       type="checkbox"
       class="z-toggle__checkbox"
-    >
-    <label
-      :for="toggleId"
-      class="z-toggle__switch"
-    >
+    />
+    <label :for="toggleId" class="z-toggle__switch">
       <span class="z-toggle__switch-norm">По графику</span>
       <span class="z-toggle__switch-noncompliance">Без графика</span>
     </label>
@@ -19,25 +16,25 @@ import { ref } from "vue";
 </template>
 
 <script setup lang="ts">
-import { computed, getCurrentInstance } from 'vue';
+import { computed, getCurrentInstance } from "vue";
 
 const props = defineProps<{
-    modelValue: boolean;
+  modelValue: boolean;
 }>();
 
 const emit = defineEmits<{
-    (e: 'update:model-value', value: boolean): void;
+  (e: "update:model-value", value: boolean): void;
 }>();
 
-const toggleId = `${getCurrentInstance()?.uid}` || 'toggle';
+const toggleId = `${getCurrentInstance()?.uid}` || "toggle";
 
 const toggleModelValue = computed({
-    get: () => {
-        return props.modelValue;
-    },
-    set: (value) => {
-        emit('update:model-value', value);
-    },
+  get: () => {
+    return props.modelValue;
+  },
+  set: (value) => {
+    emit("update:model-value", value);
+  },
 });
 </script>
 <style lang="scss" scoped>
@@ -79,12 +76,13 @@ body.body .reset-library-styles .z-toggle.z-toggle {
     cursor: pointer;
     background-color: var(--z-3d-main-color);
     clip-path: polygon(
-            14px 0,
-            calc(100% - 14px) 0,
-            100% 14px,
-            calc(100% - 14px) 100%,
-            14px 100%,
-            0 14px);
+      14px 0,
+      calc(100% - 14px) 0,
+      100% 14px,
+      calc(100% - 14px) 100%,
+      14px 100%,
+      0 14px
+    );
     display: flex;
     justify-content: center;
     align-items: center;

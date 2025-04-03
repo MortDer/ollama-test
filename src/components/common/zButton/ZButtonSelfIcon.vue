@@ -10,16 +10,18 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 const props = defineProps<{
-    size?: 'xs' | 'sm' | 'md';
-    disabled?: boolean;
-    color?: 'blue' | 'red' | 'purple' | 'light-green' | 'lavender';
+  size?: "xs" | "sm" | "md";
+  disabled?: boolean;
+  color?: "blue" | "red" | "purple" | "light-green" | "lavender";
 }>();
 
 const getAccentColor = computed(() => {
-    return props.color ? `var(--z-button-${props.color}-color)` : 'var(--z-fourth-text-color)';
+  return props.color
+    ? `var(--z-button-${props.color}-color)`
+    : "var(--z-fourth-text-color)";
 });
 </script>
 <style lang="scss">

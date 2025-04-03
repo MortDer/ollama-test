@@ -5,34 +5,36 @@
       <div class="ollama-chat__model">
         <z-label-container text="Выберите модель">
           <q-select
-              v-model="selectedModel"
-              v-bind="zSelectProps"
-              :options="models"
-              map-options
-              emit-value
-              option-value="name"
-              :option-label="(opt: Model) => `${opt.name} (${(opt.size / 1024 / 1024).toFixed(1)}MB)`"
-              class="q-mb-md"
+            v-model="selectedModel"
+            v-bind="zSelectProps"
+            :options="models"
+            map-options
+            emit-value
+            option-value="name"
+            :option-label="
+              (opt: Model) =>
+                `${opt.name} (${(opt.size / 1024 / 1024).toFixed(1)}MB)`
+            "
+            class="q-mb-md"
           />
         </z-label-container>
       </div>
     </div>
-    <div class="ollama-chat__response" v-if="response">
+    <div v-if="response" class="ollama-chat__response">
       <pre v-html="formattedResponse"></pre>
     </div>
     <div class="ollama-chat__body">
-
       <div class="ollama-chat__prompt">
         <z-label-container text="Введите свой запрос">
           <q-input
-              v-model="prompt"
-              v-bind="zInputProps"
-              type="textarea"
-              autogrow
-              @input="adjustTextareaHeight"
-              ref="textareaRef"
-              label=""
-              class="ollama-chat__textarea"
+            v-bind="zInputProps"
+            ref="textareaRef"
+            v-model="prompt"
+            type="textarea"
+            autogrow
+            label=""
+            class="ollama-chat__textarea"
+            @input="adjustTextareaHeight"
           >
           </q-input>
         </z-label-container>
@@ -40,31 +42,32 @@
       <div class="ollama-chat__file">
         <z-label-container text="Загрузить файлы">
           <q-file
-              v-model="selectedFiles"
-              v-bind="zInputProps"
-              stack-label
-              clearable
-              multiple
-              accept=".txt,.md,.pdf,.docx"
-              @change="handleFileUpload"
+            v-model="selectedFiles"
+            v-bind="zInputProps"
+            stack-label
+            clearable
+            multiple
+            accept=".txt,.md,.pdf,.docx"
+            @change="handleFileUpload"
           />
           <p v-if="selectedFiles?.length">
-            Загружено файлов: {{ selectedFiles.length }} (Общий размер: {{ totalFilesSize }}KB)
+            Загружено файлов: {{ selectedFiles.length }} (Общий размер:
+            {{ totalFilesSize }}KB)
           </p>
         </z-label-container>
       </div>
       <div class="ollama-chat__actions">
         <z-button-list-container>
           <z-button-direction
-              :text="isLoading ? 'Обработка запроса...' : 'Отправить'"
-              :disabled="isLoading || !selectedModel"
-              @click="generate"
+            :text="isLoading ? 'Обработка запроса...' : 'Отправить'"
+            :disabled="isLoading || !selectedModel"
+            @click="generate"
           />
           <z-button-direction
-              text="Новый чат"
-              is-shy
-              color="purple"
-              @click="startNewChat"
+            text="Новый чат"
+            is-shy
+            color="purple"
+            @click="startNewChat"
           />
         </z-button-list-container>
       </div>
@@ -73,78 +76,81 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue'
-import {generateChat, listModels} from '../api/ollama'
-import {v4 as uuidv4} from 'uuid';
-import {zInputProps, zSelectProps} from '@/components/common/defaultProps.ts';
-import {chartsMap, getCurrentKey, setChartsMap, setCurrentKey} from "@/store";
+import { computed, onMounted, ref } from "vue";
+import { generateChat, listModels } from "../api/ollama";
+import { v4 as uuidv4 } from "uuid";
+import { zInputProps, zSelectProps } from "@/components/common/defaultProps.ts";
+import { chartsMap, getCurrentKey, setChartsMap, setCurrentKey } from "@/store";
 import ZLabelContainer from "@/components/common/zLabel/ZLabelContainer.vue";
 import ZButtonListContainer from "@/components/common/zButton/ZButtonListContainer.vue";
 import ZButtonDirection from "@/components/common/zButton/ZButtonDirection.vue";
 
 interface Model {
-  name: string
-  size: number
+  name: string;
+  size: number;
 }
 
-const models = ref<Model[]>([])
-const selectedModel = ref<string>('')
-const prompt = ref<string>('')
-const response = ref<string>('')
-const isLoading = ref<boolean>(false)
-const selectedFiles = ref<File[]>([])
-const fileContent = ref<string>('')
-const textareaRef = ref<HTMLElement | null>(null)
+const models = ref<Model[]>([]);
+const selectedModel = ref<string>("");
+const prompt = ref<string>("");
+const response = ref<string>("");
+const isLoading = ref<boolean>(false);
+const selectedFiles = ref<File[]>([]);
+const fileContent = ref<string>("");
+const textareaRef = ref<HTMLElement | null>(null);
 
 const totalFilesSize = computed(() => {
-  return (selectedFiles.value.reduce((total, file) => total + file.size, 0) / 1024).toFixed(1)
-})
+  return (
+    selectedFiles.value.reduce((total, file) => total + file.size, 0) / 1024
+  ).toFixed(1);
+});
 
 const adjustTextareaHeight = () => {
   if (textareaRef.value) {
-    const textarea = textareaRef.value.querySelector('textarea')
+    const textarea = textareaRef.value.querySelector("textarea");
     if (textarea) {
-      textarea.style.height = 'auto'
-      textarea.style.height = `${textarea.scrollHeight}px`
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
     }
   }
-}
+};
 
 const handleFileUpload = (files: File[]) => {
-  selectedFiles.value = files
-  readFilesContent()
-}
+  selectedFiles.value = files;
+  readFilesContent();
+};
 
 // Чтение содержимого файлов
 const readFilesContent = async () => {
-  if (!selectedFiles.value.length) return
+  if (!selectedFiles.value.length) return;
 
   const contents = await Promise.all(
-      selectedFiles.value.map(file =>
-          new Promise<string>((resolve) => {
-            const reader = new FileReader()
-            reader.onload = (e) => {
-              resolve(e.target?.result as string)
-            }
-            reader.readAsText(file)
-          })
-      )
-  )
+    selectedFiles.value.map(
+      (file) =>
+        new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            resolve(e.target?.result as string);
+          };
+          reader.readAsText(file);
+        }),
+    ),
+  );
 
-  fileContent.value = contents.join('\n\n')
-}
+  fileContent.value = contents.join("\n\n");
+};
 
 const generate = async () => {
-  if (!selectedModel.value || (!prompt.value && !fileContent.value)) return
+  if (!selectedModel.value || (!prompt.value && !fileContent.value)) return;
 
-  isLoading.value = true
+  isLoading.value = true;
   try {
     const ck = getCurrentKey();
-    console.log('ck', ck);
+    console.log("ck", ck);
 
     const fullPrompt = fileContent.value
-        ? `${prompt.value}\n\nFile content:\n${fileContent.value}`
-        : prompt.value
+      ? `${prompt.value}\n\nFile content:\n${fileContent.value}`
+      : prompt.value;
 
     if (chartsMap.value.get(ck)?.messages.length === 0) {
       chartsMap.value.set(ck, {
@@ -152,76 +158,76 @@ const generate = async () => {
         title: prompt.value,
         messages: [
           {
-            role: 'system',
+            role: "system",
             content: fullPrompt,
-          }
+          },
         ],
-      })
+      });
 
       chartsMap.value.get(ck)?.messages.push({
-        role: 'user',
-        content: fullPrompt
-      })
+        role: "user",
+        content: fullPrompt,
+      });
     } else {
       chartsMap.value.get(ck)?.messages.push({
-        role: 'user',
-        content: fullPrompt
-      })
+        role: "user",
+        content: fullPrompt,
+      });
     }
 
     const result = await generateChat({
       model: selectedModel.value,
       messages: chartsMap.value.get(ck)?.messages,
       stream: false,
-    })
+    });
 
-    response.value = result.message.content
+    response.value = result.message.content;
 
     chartsMap.value.get(ck)?.messages.push({
-      role: 'assistant',
-      content: response.value
-    })
+      role: "assistant",
+      content: response.value,
+    });
   } catch (error) {
-    console.error('Ошибка генерации:', error)
-    response.value = 'Произошла ошибка при генерации ответа'
+    console.error("Ошибка генерации:", error);
+    response.value = "Произошла ошибка при генерации ответа";
   } finally {
-    isLoading.value = false
-    prompt.value = '';
-    selectedFiles.value = []
+    isLoading.value = false;
+    prompt.value = "";
+    selectedFiles.value = [];
   }
-}
+};
 
 function startNewChat() {
   const id = uuidv4();
   setCurrentKey(id);
-  setChartsMap(id, selectedModel.value, [])
-  response.value = '';
+  setChartsMap(id, selectedModel.value, []);
+  response.value = "";
 }
 
 const formattedResponse = computed(() => {
-  if (!response.value) return ''
+  if (!response.value) return "";
 
   return response.value
-      .replace(/<think>\n/g, '<think>')
-      .replace(
-          /<think>([\s\S]*?)<\/think>/g,
-          '<span class="ollama-chat__think">$1</span>'
-      )
-})
+    .replace(/<think>\n/g, "<think>")
+    .replace(
+      /<think>([\s\S]*?)<\/think>/g,
+      '<span class="ollama-chat__think">$1</span>',
+    );
+});
 
 onMounted(async () => {
   try {
-    const data = await listModels()
-    models.value = data.models
+    const data = await listModels();
+    models.value = data.models;
     if (models.value.length > 0) {
-      selectedModel.value = models.value[0].name
+      selectedModel.value = models.value[0].name;
     }
   } catch (error) {
-    console.error('Ошибка загрузки списка моделей', error)
+    console.error("Ошибка загрузки списка моделей", error);
   }
 
   startNewChat();
-})
+});
 </script>
 
 <style scoped lang="scss">
