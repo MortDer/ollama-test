@@ -100,6 +100,7 @@ import ZButtonListContainer from "@/components/common/zButton/ZButtonListContain
 import ZButtonDirection from "@/components/common/zButton/ZButtonDirection.vue";
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
+import * as XLSX from 'xlsx';
 
 // Инициализация pdf.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
@@ -163,6 +164,33 @@ const readFileContent = async () => {
     } catch (error) {
       console.error('Ошибка при чтении DOCX:', error)
       fileContent.value = 'Не удалось прочитать DOCX файл'
+    }
+  } else if (
+    selectedFile.value.type === 'application/vnd.ms-excel' || 
+    selectedFile.value.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  ) {
+    try {
+      const arrayBuffer = await selectedFile.value.arrayBuffer()
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' })
+      let text = ''
+      
+      // Обрабатываем каждую страницу
+      workbook.SheetNames.forEach(sheetName => {
+        const worksheet = workbook.Sheets[sheetName]
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
+        
+        // Преобразуем данные в текст
+        jsonData.forEach((row: any) => {
+          if (Array.isArray(row)) {
+            text += row.join('\t') + '\n'
+          }
+        })
+      })
+      
+      fileContent.value = text
+    } catch (error) {
+      console.error('Ошибка при чтении Excel:', error)
+      fileContent.value = 'Не удалось прочитать Excel файл'
     }
   } else {
     const reader = new FileReader()
