@@ -62,7 +62,7 @@
               v-bind="zInputProps"
               stack-label
               clearable
-              accept=".txt,.md,.pdf,.docx"
+              accept=".txt,.md,.pdf,.doc,.docx,.xls,.xlsx"
               @update:model-value="handleFileUpload"
           />
           <p v-if="selectedFile">
@@ -98,6 +98,11 @@ import {chartsMap, getChartsMap, getCurrentKey, type IResponseFeed, setChartsMap
 import ZLabelContainer from "@/components/common/zLabel/ZLabelContainer.vue";
 import ZButtonListContainer from "@/components/common/zButton/ZButtonListContainer.vue";
 import ZButtonDirection from "@/components/common/zButton/ZButtonDirection.vue";
+import * as pdfjsLib from 'pdfjs-dist';
+import mammoth from 'mammoth';
+
+// Инициализация pdf.js
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
 
 interface Model {
   name: string
@@ -129,15 +134,43 @@ const handleFileUpload = (event: File) => {
     readFileContent()
 }
 
-// Чтение содержимого файла
-const readFileContent = () => {
+const readFileContent = async () => {
   if (!selectedFile.value) return
 
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    fileContent.value = e.target?.result as string
+  if (selectedFile.value.type === 'application/pdf') {
+    try {
+      const arrayBuffer = await selectedFile.value.arrayBuffer()
+      const pdfDocument = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+      let text = ''
+      
+      for (let i = 1; i <= pdfDocument.numPages; i++) {
+        const page = await pdfDocument.getPage(i)
+        const content = await page.getTextContent()
+        const pageText = content.items.map((item: any) => item.str).join(' ')
+        text += pageText + '\n'
+      }
+      
+      fileContent.value = text
+    } catch (error) {
+      console.error('Ошибка при чтении PDF:', error)
+      fileContent.value = 'Не удалось прочитать PDF файл'
+    }
+  } else if (selectedFile.value.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    try {
+      const arrayBuffer = await selectedFile.value.arrayBuffer()
+      const result = await mammoth.extractRawText({ arrayBuffer })
+      fileContent.value = result.value
+    } catch (error) {
+      console.error('Ошибка при чтении DOCX:', error)
+      fileContent.value = 'Не удалось прочитать DOCX файл'
+    }
+  } else {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      fileContent.value = e.target?.result as string
+    }
+    reader.readAsText(selectedFile.value)
   }
-  reader.readAsText(selectedFile.value)
 }
 
 const generate = async () => {
