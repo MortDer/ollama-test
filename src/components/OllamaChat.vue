@@ -56,18 +56,17 @@
         </z-label-container>
       </div>
       <div class="ollama-chat__file">
-        <z-label-container text="Загрузить файлы">
+        <z-label-container text="Загрузить файл">
           <q-file
-              v-model="selectedFiles"
+              :model-value="selectedFile"
               v-bind="zInputProps"
               stack-label
               clearable
-              multiple
               accept=".txt,.md,.pdf,.docx"
-              @change="handleFileUpload"
+              @update:model-value="handleFileUpload"
           />
-          <p v-if="selectedFiles?.length">
-            Загружено файлов: {{ selectedFiles.length }} (Общий размер: {{ totalFilesSize }}KB)
+          <p v-if="selectedFile">
+            Загружен файл: {{ selectedFile.name }} (Размер: {{ (selectedFile.size / 1024).toFixed(1) }}KB)
           </p>
         </z-label-container>
       </div>
@@ -110,14 +109,10 @@ const selectedModel = ref<string>('')
 const prompt = ref<string>('')
 const response = ref<string>('')
 const isLoading = ref<boolean>(false)
-const selectedFiles = ref<File[]>([])
+const selectedFile = ref<File | null>(null)
 const fileContent = ref<string>('')
 const textareaRef = ref<HTMLElement | null>(null)
 const chartsMapToShow = ref<IResponseFeed | undefined>()
-
-const totalFilesSize = computed(() => {
-  return (selectedFiles.value.reduce((total, file) => total + file.size, 0) / 1024).toFixed(1)
-})
 
 const adjustTextareaHeight = () => {
   if (textareaRef.value) {
@@ -129,27 +124,20 @@ const adjustTextareaHeight = () => {
   }
 }
 
-const handleFileUpload = (files: File[]) => {
-  selectedFiles.value = files
-  readFilesContent()
+const handleFileUpload = (event: File) => {
+    selectedFile.value = event
+    readFileContent()
 }
 
-const readFilesContent = async () => {
-  if (!selectedFiles.value.length) return
+// Чтение содержимого файла
+const readFileContent = () => {
+  if (!selectedFile.value) return
 
-  const contents = await Promise.all(
-      selectedFiles.value.map(file =>
-          new Promise<string>((resolve) => {
-            const reader = new FileReader()
-            reader.onload = (e) => {
-              resolve(e.target?.result as string)
-            }
-            reader.readAsText(file)
-          })
-      )
-  )
-
-  fileContent.value = contents.join('\n\n')
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    fileContent.value = e.target?.result as string
+  }
+  reader.readAsText(selectedFile.value)
 }
 
 const generate = async () => {
@@ -207,6 +195,10 @@ const generate = async () => {
         })
 
     chartsMapToShow.value = getChartsMap(ck)
+
+    prompt.value = '';
+    selectedFile.value = null
+    fileContent.value = ''
   } catch (error) {
     console.error('Ошибка генерации:', error)
     response.value = 'Произошла ошибка при генерации ответа'
@@ -219,8 +211,6 @@ const generate = async () => {
     }
   } finally {
     isLoading.value = false
-    prompt.value = '';
-    selectedFiles.value = []
   }
 }
 
@@ -232,13 +222,15 @@ function startNewChat() {
 
   response.value = '';
   prompt.value = '';
-  selectedFiles.value = [];
+  selectedFile.value = null;
+  fileContent.value = '';
 
   chartsMapToShow.value = getChartsMap(id)
 }
 
 const formatResponse = (text: string) => {
   return text
+      .replace(/File content:[\s\S]*$/, '')
       .replace(/\n/g, '<br/>')
       .replace(/<br\/>\s*<br\/>/g, '<br/>')
       .replace(/^<br\/>/g, '')
