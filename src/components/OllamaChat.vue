@@ -1,7 +1,7 @@
 <template>
   <div class="ollama-chat">
     <div class="ollama-chat__header">
-      <h1>Ollama Chat</h1>
+      <h1>AI НИИАС</h1>
       <div class="ollama-chat__model">
         <z-label-container text="Выберите модель">
           <q-select
@@ -205,7 +205,7 @@ const generate = async () => {
 
     const ck = getCurrentKey();
     const messages = chartsMap.value.get(ck)?.messages
-    
+
     if (messages && messages.length > 0) {
       messages.pop()
     }
