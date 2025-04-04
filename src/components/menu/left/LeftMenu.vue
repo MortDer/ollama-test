@@ -228,75 +228,13 @@ const onItemClick = (key: string) => {
     top: var(--z-layout-gutter-xs);
     right: var(--z-layout-gutter-xs);
   }
-}
 
-//.left-menu {
-//  position: fixed;
-//  left: 0;
-//  top: 0;
-//  height: 100vh;
-//  width: 250px;
-//  background-color: #2c3e50;
-//  color: white;
-//  transition: width 0.3s ease;
-//  z-index: 1000;
-//}
-//
-//.left-menu--collapsed {
-//  width: 60px;
-//}
-//
-//.left-menu__toggle {
-//  position: absolute;
-//  right: -15px;
-//  top: 20px;
-//  width: 30px;
-//  height: 30px;
-//  border-radius: 50%;
-//  background-color: #2c3e50;
-//  color: white;
-//  border: none;
-//  cursor: pointer;
-//  display: flex;
-//  align-items: center;
-//  justify-content: center;
-//  z-index: 1001;
-//  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-//}
-//
-//.left-menu__nav {
-//  padding: 20px 0;
-//}
-//
-//.left-menu__list {
-//  list-style: none;
-//  padding: 0;
-//  margin: 0;
-//}
-//
-//.left-menu__item {
-//  margin: 5px 0;
-//}
-//
-//.left-menu__link {
-//  display: flex;
-//  align-items: center;
-//  padding: 12px 20px;
-//  color: white;
-//  text-decoration: none;
-//  transition: background-color 0.3s ease;
-//}
-//
-//.left-menu__link:hover {
-//  background-color: #34495e;
-//}
-//
-//.left-menu__icon {
-//  margin-right: 15px;
-//  font-size: 20px;
-//}
-//
-//.left-menu__text {
-//  font-size: 16px;
-//}
+  &__text {
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
 </style>
